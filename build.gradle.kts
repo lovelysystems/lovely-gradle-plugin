@@ -1,8 +1,5 @@
 import org.gradle.internal.impldep.com.amazonaws.auth.AWSCredentials
 
-
-
-
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
@@ -28,7 +25,7 @@ gradlePlugin {
     }
 }
 
-dependencies{
+dependencies {
     compile("org.eclipse.jgit:org.eclipse.jgit:4.10.0.201712302008-r")
     testCompile(gradleTestKit())
     testCompile("junit:junit:4.12")
@@ -38,9 +35,14 @@ dependencies{
 }
 
 publishing {
+
     repositories {
         maven {
-            url =  uri("../maven-repo/")
+            url = uri("s3://lovelymaven/")
+            credentials(AwsCredentials::class.java) {
+                accessKey = System.getenv("AWS_ACCESS_KEY_ID")
+                secretKey = System.getenv("AWS_SECRET_ACCESS_KEY")
+            }
         }
     }
 

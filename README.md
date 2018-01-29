@@ -12,6 +12,20 @@ plugins {
 }
 ````
 
+Currently the plugin artifacts are only published to an intermediate S3 bucket, therefore
+it is required to add the following to your `settings.gradle.kts` file:
+
+````gradle
+pluginManagement {
+    repositories {
+        maven {
+            url = uri("http://lovelymaven.s3.eu-central-1.amazonaws.com/")
+        }
+        gradlePluginPortal()
+    }
+}
+````
+
 Git Project
 -----------
 
