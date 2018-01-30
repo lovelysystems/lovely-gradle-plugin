@@ -1,3 +1,4 @@
+import org.gradle.internal.impldep.aQute.bnd.plugin.gradle.GradlePlugin
 import org.gradle.internal.impldep.com.amazonaws.auth.AWSCredentials
 
 plugins {
@@ -5,6 +6,7 @@ plugins {
     `kotlin-dsl`
     `maven-publish`
     kotlin("jvm") version "1.2.20"
+    id("com.gradle.plugin-publish") version "0.9.9"
 }
 
 repositories {
@@ -14,12 +16,12 @@ repositories {
 group = "com.lovelysystems"
 version = "0.0.2"
 
-
+val pluginId = "lovely-gradle-plugin"
 
 gradlePlugin {
     (plugins) {
-        "lovely" {
-            id = "lovely-gradle-plugin"
+        pluginId {
+            id = pluginId
             implementationClass = "com.lovelysystems.gradle.LovelyGradlePlugin"
         }
     }
@@ -36,20 +38,29 @@ dependencies {
 }
 
 publishing {
-
     repositories {
-        maven {
-            url = uri("s3://lovelymaven/")
-            credentials(AwsCredentials::class.java) {
-                accessKey = System.getenv("AWS_ACCESS_KEY_ID")
-                secretKey = System.getenv("AWS_SECRET_ACCESS_KEY")
-            }
+        maven(url = buildDir.resolve("repository")) {
+            name = "test"
         }
     }
-
     (publications) {
         "mavenJava"(MavenPublication::class) {
             from(components["java"])
+        }
+    }
+}
+
+pluginBundle {
+    website = "https://github.com/lovelysystems/lovely-gradle-plugin"
+    vcsUrl = "https://github.com/lovelysystems/lovely-gradle-plugin"
+    description = "Gradle Plugins for Lovely Systems Projects"
+    tags = listOf("git", "docker")
+
+    (plugins) {
+        pluginId {
+            id = pluginId
+            displayName = "Lovely Systems Project Helpers"
+            description = "Gradle Plugin for Lovely Systems Projects"
         }
     }
 }
