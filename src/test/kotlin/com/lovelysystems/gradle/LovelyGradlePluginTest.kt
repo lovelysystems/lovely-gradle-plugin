@@ -14,7 +14,7 @@ class LovelyGradlePluginTest {
 
     val config = """
              plugins {
-              id 'lovely-gradle-plugin'
+              id 'com.lovelysystems.gradle'
              }
              """
 

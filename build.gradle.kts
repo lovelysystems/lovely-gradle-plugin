@@ -1,6 +1,3 @@
-import org.gradle.internal.impldep.aQute.bnd.plugin.gradle.GradlePlugin
-import org.gradle.internal.impldep.com.amazonaws.auth.AWSCredentials
-
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
@@ -14,9 +11,9 @@ repositories {
 }
 
 group = "com.lovelysystems"
-version = "0.0.2"
+version = "0.0.1"
 
-val pluginId = "lovely-gradle-plugin"
+val pluginId = "com.lovelysystems.gradle"
 
 gradlePlugin {
     (plugins) {
@@ -51,8 +48,8 @@ publishing {
 }
 
 pluginBundle {
-    website = "https://github.com/lovelysystems/lovely-gradle-plugin"
-    vcsUrl = "https://github.com/lovelysystems/lovely-gradle-plugin"
+    website = "https://github.com/lovelysystems/com.lovelysystems.gradle"
+    vcsUrl = "https://github.com/lovelysystems/com.lovelysystems.gradle"
     description = "Gradle Plugins for Lovely Systems Projects"
     tags = listOf("git", "docker")
 

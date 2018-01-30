@@ -4,27 +4,8 @@ Lovely Gradle Plugin
 This repository provides a Gradle plugin used by Lovely Systems Projects. Examples provided
 here are using the gradle [kotlin-dsl](https://github.com/gradle/kotlin-dsl)
 
-Apply the plugin using standard gradle convention in your `build.gradle.kts` file:
-
-````gradle
-plugins {
-  id("lovely-gradle-plugin") version ("0.0.1")
-}
-````
-
-Currently the plugin artifacts are only published to an intermediate S3 bucket, therefore
-it is required to add the following to your `settings.gradle.kts` file:
-
-````gradle
-pluginManagement {
-    repositories {
-        maven {
-            url = uri("http://lovelymaven.s3.eu-central-1.amazonaws.com/")
-        }
-        gradlePluginPortal()
-    }
-}
-````
+Apply the plugin using standard gradle convention  by following the instructions shown
+on the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.lovelysystems.gradle).
 
 Git Project
 -----------

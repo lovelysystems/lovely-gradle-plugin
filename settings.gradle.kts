@@ -1,1 +1,1 @@
-rootProject.name = "lovely-gradle-plugin"
+rootProject.name = "com.lovelysystems.gradle"
