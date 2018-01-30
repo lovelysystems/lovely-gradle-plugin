@@ -53,7 +53,7 @@ class ChangeLogTest {
         f.writeText(unreleasedLog)
         val cl = ChangeLog(f)
         cl.latestVersion().second shouldBeEqualTo "unreleased"
-        cl.latestVersion().first shouldBe null
+        cl.latestVersion().first shouldBe ""
     }
 
     @Test
@@ -62,6 +62,6 @@ class ChangeLogTest {
         f.writeText(releasedLog)
         val cl = ChangeLog(f)
         cl.latestVersion().second shouldBeEqualTo "0.0.2"
-        CHANGELOG_DATE_FORMAT.format(cl.latestVersion().first!!) shouldBeEqualTo "2018/01/15"
+        cl.latestVersion().first shouldBeEqualTo "2018/01/15"
     }
 }

@@ -12,7 +12,7 @@ repositories {
 }
 
 group = "com.lovelysystems"
-version = "0.0.1"
+version = "0.0.2"
 
 
 
@@ -27,6 +27,7 @@ gradlePlugin {
 
 dependencies {
     compile("org.eclipse.jgit:org.eclipse.jgit:4.10.0.201712302008-r")
+    compile("com.jcraft:jzlib:1.1.3")
     testCompile(gradleTestKit())
     testCompile("junit:junit:4.12")
     testCompile(kotlin("test"))
