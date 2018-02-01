@@ -24,7 +24,7 @@ lovely {
 
 ### Tasks
 
-  * `printVersion`: prints out the version of the project
+  * `printVersion`: Prints out the version of the project
   * `createTag` - Creates a new git tag for the current version and pushes the tag to the upstream
 
 The `createTag` task validates the state of the current work tree and only allows to tag the version
@@ -41,13 +41,16 @@ lovely {
 }
 ````
 
-The above statement uses `some.hub.com` as the docker registry to push the images to.
+The above statement uses `some.hub.com` as the Docker registry to push the images to.
 
 ### Tasks
 
+  
+  * `printDockerTag` - Prints out the currently generated Docker tag
   * `prepareDockerImage` - Prepares all files required for a Docker build
-  * `buildDockerDevImage` - Builds a docker image and tags it with current version and dev
-  * `pushDockerDevImage` - Pushes the docker image to the registry
+  * `buildDockerImage` - Builds a Docker image and tags it with current version and dev
+  * `pushDockerImage` - Pushes the Docker image to the registry
+  * `pushDockerDevImage` - Pushes the Docker image to the registry and tag it as `dev`
 
 
 License

@@ -11,7 +11,7 @@ repositories {
 }
 
 group = "com.lovelysystems"
-version = "0.0.1"
+version = "0.0.2"
 
 val pluginId = "com.lovelysystems.gradle"
 
@@ -45,6 +45,7 @@ publishing {
             from(components["java"])
         }
     }
+
 }
 
 pluginBundle {

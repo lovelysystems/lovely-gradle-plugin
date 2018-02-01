@@ -5,16 +5,22 @@ package com.lovelysystems.gradle
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.distribution.plugins.DistributionPlugin
+import org.gradle.api.file.CopySpec
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.*
 
 open class LovelyPluginExtension(val project: Project) {
+
     fun gitProject() {
         project.gitProject()
     }
 
-    fun dockerProject(hub: String = "") {
-        project.dockerProject(hub)
+    val dockerFiles = project.copySpec()
+
+    fun dockerProject(repository: String) {
+        project.dockerProject(repository, dockerFiles)
     }
 }
 
