@@ -2,6 +2,11 @@
 Changes for Lovely Gradle Plugin
 ================================
 
+2018/02/01 0.0.3
+================
+
+ - fixed a fetch issue with newer git repos
+
 2018/02/01 0.0.2
 ================
 

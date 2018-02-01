@@ -20,7 +20,7 @@ class LSGit(private val dir: File) {
     private val git by lazy {
         try {
             Git.open(dir)
-        } catch (e: RepositoryNotFoundException){
+        } catch (e: RepositoryNotFoundException) {
             throw RuntimeException("$dir is not a Git project")
         }
 
@@ -49,6 +49,23 @@ class LSGit(private val dir: File) {
         return res
     }
 
+    fun fetch() {
+
+        // use the git cli since jGit somehow messes up git repos, at least with git 2.15
+        val proc = Runtime.getRuntime().exec(
+            arrayOf("git", "fetch", "--tags"),
+            emptyArray(),
+            dir
+        )
+
+        proc.waitFor(10, TimeUnit.SECONDS)
+        if (proc.exitValue() != 0) {
+            Scanner(proc.errorStream).use {
+                while (it.hasNextLine()) System.err.println(it.nextLine())
+            }
+        }
+    }
+
     private fun tagName(refName: String): String {
         return refName.substring(10)
     }
@@ -66,7 +83,7 @@ class LSGit(private val dir: File) {
         assert(isProductionVersion(name)) { "$name is not a production version tag" }
 
         val localTag = localTagRef(name)
-        git.fetch().setTagOpt(TagOpt.FETCH_TAGS).call()
+        fetch()
         val remoteTag = remoteTags()[localTag.name]
                 ?: throw RuntimeException("Local tag $name does not exist on origin upstream")
 
@@ -107,7 +124,7 @@ class LSGit(private val dir: File) {
             throw RuntimeException("$version is not a valid production version identifier")
         }
 
-        git.fetch().setTagOpt(TagOpt.FETCH_TAGS).call()
+        fetch()
         validateHeadPushed()
 
         val currentVersion = describe()
