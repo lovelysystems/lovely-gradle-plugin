@@ -2,8 +2,8 @@
 Changes for Lovely Gradle Plugin
 ================================
 
-unreleased
-==========
+2018/02/01 0.0.2
+================
 
  - added example project
 
