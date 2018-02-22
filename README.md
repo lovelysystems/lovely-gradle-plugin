@@ -1,15 +1,22 @@
 # Lovely Gradle Plugin
 
-This repository provides a Gradle plugin used by Lovely Systems Projects. Examples provided
-here are using the gradle [kotlin-dsl](https://github.com/gradle/kotlin-dsl)
+This repository provides a Gradle plugin used by Lovely Systems Projects. It is only tested with the
+ [kotlin-dsl](https://github.com/gradle/kotlin-dsl) for Gradle, Groovy is not supported.
 
-Apply the plugin using standard gradle convention  by following the instructions shown
-on the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.lovelysystems.gradle).
+The newest version of this plugin can be found on the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.lovelysystems.gradle)
+and can be applied to your project by adding it to the plugins section of your `build.gradl.kts` file like this:
+
+```
+plugins {
+    id("com.lovelysystems.gradle") version ("0.0.3")
+}
+```
 
 ## Git Project
 
-The Git project support automatically sets the project version from the Git
-state of the project. It also allows to automatically generate a new version
+The Git project support automatically sets the
+[project version](https://docs.gradle.org/current/dsl/org.gradle.api.Project.html#org.gradle.api.Project:version)
+from the Git state of the project by using `git describe` internally. It also allows to automatically generate a new version
 tag and push it based on the changelog.
 
 To enable this functionality add the following to your `build.gradle.kts` file:
@@ -22,11 +29,17 @@ lovely {
 
 ### Tasks
 
-  * `printVersion`: Prints out the version of the project
+  * `printVersion`: Prints out the current version of the project
   * `createTag` - Creates a new git tag for the current version and pushes the tag to the upstream
 
-The `createTag` task validates the state of the current work tree and only allows to tag the version
-if the validation passes.
+The `createTag` task creates a version tag for the latest version defined in the `CHANGES.rst` file
+in the root of the project. The task validates the state of the project tree and only allows to tag the version
+if the validation passes. The following conditions need to be met in order for `createTag` to operate:
+
+ - The latest changelog entry in the changes file needs to have a valid version number (e.g: 0.1.2).
+ - There are no uncommitted changes or unknown files in the work tree.
+ - Your current branch is `master` and is in sync with the upstream `master` branch head.
+ - The same or a newer git tag does not exist.
 
 ## Docker Project
 
