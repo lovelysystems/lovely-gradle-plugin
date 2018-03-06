@@ -2,6 +2,13 @@
 Changes for Lovely Gradle Plugin
 ================================
 
+unreleased
+==========
+
+ - fixed version ordering check which could have lead to false negatives
+
+ - git commands now use the local git installation instead of jgit
+
 2018/02/01 0.0.3
 ================
 

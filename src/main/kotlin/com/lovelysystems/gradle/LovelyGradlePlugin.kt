@@ -43,7 +43,7 @@ open class CreateTagTask : DefaultTask() {
     fun create() {
         val g = LSGit(project.rootProject.rootDir)
         val version = g.createVersionTag()
-        println("Created and pushed tag $version")
+        println("Created and pushed tag ${version.second} with release date ${version.first}")
     }
 }
 

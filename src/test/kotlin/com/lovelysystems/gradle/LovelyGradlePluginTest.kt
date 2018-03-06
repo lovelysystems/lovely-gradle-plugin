@@ -42,7 +42,7 @@ class LovelyGradlePluginTest {
         val runner = GradleRunner.create().withPluginClasspath().withProjectDir(downstream.repository.workTree)
 
         var r = runner.withArguments("createTag", "--stacktrace", "-q").build()
-        r.output.trim() shouldBeEqualTo "Created and pushed tag 0.0.2"
+        r.output.trim() shouldBeEqualTo "Created and pushed tag 0.0.2 with release date 2018/01/15"
 
         r = runner.withArguments("printVersion", "-q", "--stacktrace", "-q").build()
         r.output.trim() shouldBeEqualTo "0.0.2"

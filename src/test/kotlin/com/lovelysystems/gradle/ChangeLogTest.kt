@@ -2,6 +2,7 @@ package com.lovelysystems.gradle
 
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldEqual
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -52,16 +53,22 @@ class ChangeLogTest {
         val f = tmp.root.resolve("unreleasedLog.rst")
         f.writeText(unreleasedLog)
         val cl = ChangeLog(f)
-        cl.latestVersion().second shouldBeEqualTo "unreleased"
-        cl.latestVersion().first shouldBe ""
+        cl.latestVersion() shouldBe null
     }
 
     @Test
     fun testLatestEntryReleased() {
         val f = tmp.root.resolve("releasedLog.rst")
         f.writeText(releasedLog)
-        val cl = ChangeLog(f)
-        cl.latestVersion().second shouldBeEqualTo "0.0.2"
-        cl.latestVersion().first shouldBeEqualTo "2018/01/15"
+        val latestVersion = ChangeLog(f).latestVersion()!!
+        latestVersion.second.toString() shouldBeEqualTo "0.0.2"
+        latestVersion.first shouldBeEqualTo "2018/01/15"
+    }
+
+    @Test
+    fun testVersionOrdering() {
+        val expected = listOf("0.1.1", "0.1.2", "0.3.0", "0.10.1")
+        expected.map { Version(it) }
+            .sorted().map { it.toString() } shouldEqual expected
     }
 }

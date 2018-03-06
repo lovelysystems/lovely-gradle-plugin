@@ -43,15 +43,16 @@ if the validation passes. The following conditions need to be met in order for `
 
 ## Docker Project
 
-To enable this functionality add the following to your `build.gradle.kts` file:
+This functionality is enabled by defining the docker repository for the project in the
+`build.gradle.kts` file like this::
 
 ```gradle
 lovely {
-  dockerProject("some.hub.com")
+  dockerProject("hub.example.com/lovely/exampleproject")
 }
 ```
 
-The above statement uses `some.hub.com` as the Docker registry to push the images to.
+As for any docker repository the hostname of the registry is not required and defaults to ``docker.io``
 
 ### Tasks
 
@@ -60,17 +61,6 @@ The above statement uses `some.hub.com` as the Docker registry to push the image
   * `buildDockerImage` - Builds a Docker image and tags it with current version and dev
   * `pushDockerImage` - Pushes the Docker image to the registry
   * `pushDockerDevImage` - Pushes the Docker image to the registry and tag it as `dev`
-
-## Limitations
-
-Currently only [Clones with SSH URLs](https://help.github.com/articles/which-remote-url-should-i-use/#cloning-with-ssh-urls)
-are supported. Using https clones will result in an exception like
-
-```
-> org.eclipse.jgit.api.errors.TransportException: https://github.com/org/repo.git:
-Authentication is required but no CredentialsProvider has been registered
-```
-
 
 ## License
 

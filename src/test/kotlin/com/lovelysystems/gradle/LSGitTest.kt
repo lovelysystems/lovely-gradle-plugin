@@ -78,7 +78,7 @@ class LSGitTest {
         val downstream = createSampleRepos(tmp).second
 
         val g = LSGit(downstream.repository.workTree)
-        g.createVersionTag() shouldBeEqualTo "0.0.2"
+        g.createVersionTag().second.toString() shouldBeEqualTo "0.0.2"
         g.validateProductionTag(g.describe())
 
         var func = { g.createVersionTag() }
@@ -86,7 +86,7 @@ class LSGitTest {
 
         downstream.createVersionedFile("b.txt")
         func = { g.createVersionTag() }
-        func shouldThrow RuntimeException::class withMessage "Branch master is not in sync with remote"
+        func shouldThrow RuntimeException::class withMessage "Current head is not in sync with origin/master"
 
         downstream.push().call()
 

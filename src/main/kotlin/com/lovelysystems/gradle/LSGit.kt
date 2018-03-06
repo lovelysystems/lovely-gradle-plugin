@@ -1,145 +1,115 @@
 package com.lovelysystems.gradle
 
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.errors.RepositoryNotFoundException
-import org.eclipse.jgit.lib.BranchTrackingStatus
-import org.eclipse.jgit.lib.Ref
-import org.eclipse.jgit.transport.TagOpt
 import java.io.File
-import java.util.*
+import java.io.InputStream
 import java.util.concurrent.TimeUnit
 
-val PRODUCTION_VERSION_PATTERN = Regex("^[0-9]+\\.[0-9]+\\.[0-9]+$")
-
 fun isProductionVersion(version: String): Boolean {
-    return PRODUCTION_VERSION_PATTERN.matchEntire(version) != null
+    return RELEASE_VERSION_PATTERN.matchEntire(version) != null
 }
 
 class LSGit(private val dir: File) {
 
-    private val git by lazy {
-        try {
-            Git.open(dir)
-        } catch (e: RepositoryNotFoundException) {
-            throw RuntimeException("$dir is not a Git project")
-        }
-
-    }
-
-    fun describe(): String {
-
-        // use the git cli since jGit does not have that describe feature as we need it
+    private fun gitCmd(vararg args: String, onError: ((InputStream) -> String)? = null): String {
+        val cmd = arrayOf("git") + args
         val proc = Runtime.getRuntime().exec(
-            arrayOf("git", "describe", "--always", "--tags", "--dirty=.dirty"),
+            cmd,
             emptyArray(),
             dir
         )
-
-        proc.waitFor(2, TimeUnit.SECONDS)
-        var res = "unversioned"
-        if (proc.exitValue() == 0) {
-            Scanner(proc.inputStream).use {
-                res = it.nextLine()
-            }
-        } else {
-            Scanner(proc.errorStream).use {
-                while (it.hasNextLine()) System.err.println(it.nextLine())
-            }
-        }
-        return res
-    }
-
-    fun fetch() {
-
-        // use the git cli since jGit somehow messes up git repos, at least with git 2.15
-        val proc = Runtime.getRuntime().exec(
-            arrayOf("git", "fetch", "--tags"),
-            emptyArray(),
-            dir
-        )
-
         proc.waitFor(10, TimeUnit.SECONDS)
-        if (proc.exitValue() != 0) {
-            Scanner(proc.errorStream).use {
-                while (it.hasNextLine()) System.err.println(it.nextLine())
-            }
+
+
+        return if (proc.exitValue() == 0) {
+            proc.inputStream.reader().readText().trim()
+        } else {
+            onError?.invoke(proc.errorStream) ?: throw RuntimeException(
+                "command failed: ${cmd.joinToString(" ")}\n${proc.errorStream}"
+            )
         }
     }
 
-    private fun tagName(refName: String): String {
-        return refName.substring(10)
+    fun describe() = gitCmd("describe", "--always", "--tags", "--dirty=.dirty") { "unversioned" }
+
+    private fun fetch() {
+        gitCmd("fetch", "--tags")
     }
 
-    private fun localTagRef(name: String): Ref {
-        return git.tagList().call()!!.find { tagName(it.name) == name }
-                ?: throw RuntimeException("Tag $name not found in local repository")
+    private fun localTagHash(name: String): String? {
+        val res = gitCmd("show-ref", "--tags", "-s", name)
+        return if (res.isBlank()) return null else res
     }
 
-    private fun remoteTags(): Map<String, Ref> {
-        return git.lsRemote().setRemote("origin").setTags(true).setHeads(false).callAsMap()
+    private fun remoteTagHash(name: String): String? {
+        val line = gitCmd("ls-remote", "--refs", "--tags", "-q", "origin", name)
+        if (line.isBlank()) {
+            return null
+        }
+        return line.split(Regex("\\s+")).first()
     }
 
     fun validateProductionTag(name: String) {
         assert(isProductionVersion(name)) { "$name is not a production version tag" }
 
-        val localTag = localTagRef(name)
-        fetch()
-        val remoteTag = remoteTags()[localTag.name]
-                ?: throw RuntimeException("Local tag $name does not exist on origin upstream")
+        val localHash = localTagHash(name) ?: throw RuntimeException("Local tag $name not found")
+        val remoteHash = remoteTagHash(name) ?: throw RuntimeException(
+            "Local tag $name does not exist on origin upstream"
+        )
 
-        if (remoteTag.objectId != localTag.objectId) {
+        if (localHash != remoteHash) {
             throw RuntimeException(
-                "The id of tag $name differs: local=${localTag.objectId} origin=${remoteTag.objectId}"
+                "The hash of the tag $name differs: local=$localHash origin=$remoteHash"
             )
         }
     }
 
     private fun validateCleanWorkTree() {
-        val st = git.status().call()
-        if (!st.isClean) {
+        if (gitCmd("status", "-s").isNotEmpty()) {
             throw RuntimeException("Work directory is not clean")
         }
     }
 
-    private fun validateHeadPushed() {
-        val branch = git.repository.branch
-        if (branch != "master") {
-            throw RuntimeException("Current branch $branch is not master")
+    private fun validateHeadIsMasterAndPushed() {
+        val res = gitCmd("log", "--pretty=format:%D", "-n", "1")
+
+        if (!res.startsWith("HEAD -> master")) {
+            throw RuntimeException("Current head is not on master")
         }
 
-        val st = BranchTrackingStatus.of(git.repository, "master")
-                ?: throw RuntimeException("Failed to get tracking status of master")
-
-        if (st.aheadCount > 0 || st.behindCount > 0) {
-            throw RuntimeException("Branch master is not in sync with remote")
+        if (!res.contains("origin/master")) {
+            throw RuntimeException("Current head is not in sync with origin/master")
         }
     }
 
-    fun createVersionTag(): String {
-        validateCleanWorkTree()
-        val changeLog = ChangeLog(git.repository.workTree.resolve("CHANGES.rst"))
-        val (releaseDate, version) = changeLog.latestVersion()
+    private fun latestLocalGitTagVersion(): Version? {
+        val res = gitCmd("tag", "-l", "--sort=-v:refname").lines()
+        return if (res.isEmpty()) null else Version(res.first { isProductionVersion(it) })
+    }
 
-        if (!isProductionVersion(version)) {
-            throw RuntimeException("$version is not a valid production version identifier")
-        }
+    fun createVersionTag(): Pair<String, Version> {
+        validateCleanWorkTree()
+        val changeLog = ChangeLog(dir.resolve("CHANGES.rst"))
+        val releaseInfo =
+            changeLog.latestVersion() ?: throw RuntimeException("Changelog entry for release cannot be found")
 
         fetch()
-        validateHeadPushed()
+        validateHeadIsMasterAndPushed()
 
         val currentVersion = describe()
         if (isProductionVersion(currentVersion)) {
             throw RuntimeException("Current head is already tagged with production tag $currentVersion")
         }
 
-        val latestVersionLocal = git.tagList().call().map { tagName(it.name) }.filter { isProductionVersion(it) }.max()
-
-        if (latestVersionLocal != null && latestVersionLocal >= version) {
-            throw RuntimeException("Version number superseded: $latestVersionLocal >= $version")
+        val latestVersionLocal = latestLocalGitTagVersion()
+        if (latestVersionLocal != null && latestVersionLocal >= releaseInfo.second) {
+            throw RuntimeException("Version number superseded: $latestVersionLocal >= ${releaseInfo.second}")
         }
 
-        git.tag().setName(version).setMessage("Release $version from $releaseDate").call()
-        git.push().setPushTags().call()
-        return version
+        gitCmd(
+            "tag", "-a", "-m", "Release ${releaseInfo.second} from ${releaseInfo.first}",
+            releaseInfo.second.toString()
+        )
+        gitCmd("push", "--tags", "-q")
+        return releaseInfo
     }
 }
