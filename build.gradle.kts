@@ -48,8 +48,8 @@ publishing {
 }
 
 pluginBundle {
-    website = "https://github.com/lovelysystems/com.lovelysystems.gradle"
-    vcsUrl = "https://github.com/lovelysystems/com.lovelysystems.gradle"
+    website = "https://github.com/lovelysystems/lovely-gradle-plugin"
+    vcsUrl = "https://github.com/lovelysystems/lovely-gradle-plugin"
     description = "Gradle Plugins for Lovely Systems Projects"
     tags = listOf("git", "docker")
 
