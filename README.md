@@ -1,5 +1,7 @@
 # Lovely Gradle Plugin
 
+[![Build Status](https://travis-ci.org/lovelysystems/lovely-gradle-plugin.svg?branch=master)](https://travis-ci.org/lovelysystems/lovely-gradle-plugin)
+
 This repository provides a Gradle plugin used by Lovely Systems Projects. It is only tested with the
  [kotlin-dsl](https://github.com/gradle/kotlin-dsl) for Gradle, Groovy is not supported.
 
