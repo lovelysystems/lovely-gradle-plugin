@@ -2,8 +2,8 @@
 Changes for Lovely Gradle Plugin
 ================================
 
-unreleased
-==========
+2018/03/06 0.0.4
+================
 
  - fixed version ordering check which could have lead to false negatives
 
