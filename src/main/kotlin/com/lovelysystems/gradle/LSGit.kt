@@ -10,7 +10,11 @@ fun isProductionVersion(version: String): Boolean {
 
 class LSGit(private val dir: File) {
 
-    private fun gitCmd(vararg args: String, onError: ((InputStream) -> String)? = null): String {
+    init {
+        assert(dir.isDirectory) { "'$dir' is not a directory" }
+    }
+
+    fun gitCmd(vararg args: String, onError: ((InputStream) -> String)? = null): String {
         val cmd = arrayOf("git") + args
         val proc = Runtime.getRuntime().exec(
             cmd,
@@ -18,13 +22,11 @@ class LSGit(private val dir: File) {
             dir
         )
         proc.waitFor(10, TimeUnit.SECONDS)
-
-
         return if (proc.exitValue() == 0) {
             proc.inputStream.reader().readText().trim()
         } else {
             onError?.invoke(proc.errorStream) ?: throw RuntimeException(
-                "command failed: ${cmd.joinToString(" ")}\n${proc.errorStream}"
+                "git command failed: ${cmd.joinToString(" ")}\n${proc.errorStream.reader().readText()}"
             )
         }
     }

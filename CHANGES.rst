@@ -5,6 +5,8 @@ Changes for Lovely Gradle Plugin
 unreleased
 ==========
 
+ - fixed an issue that prevented git errors to be logged
+
  - fixed website and vcs urls in meta data
 
 2018/03/06 0.0.4

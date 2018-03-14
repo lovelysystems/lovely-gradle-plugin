@@ -1,9 +1,6 @@
 package com.lovelysystems.gradle
 
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldMatch
-import org.amshove.kluent.shouldThrow
-import org.amshove.kluent.withMessage
+import org.amshove.kluent.*
 import org.eclipse.jgit.api.Git
 import org.junit.Rule
 import org.junit.Test
@@ -92,5 +89,25 @@ class LSGitTest {
 
         func = { g.createVersionTag() }
         func shouldThrow RuntimeException::class withMessage "Version number superseded: 0.0.2 >= 0.0.2"
+    }
+
+    @Test
+    fun testNoDir() {
+        { LSGit(tmp.root.resolve("this file does not exist")) } shouldThrow AssertionError::class
+    }
+
+    @Test
+    fun testErrorThrown() {
+        val g = LSGit(tmp.root)
+        ({ g.gitCmd("describe") }).shouldThrow(RuntimeException::class)
+            .exceptionMessage shouldContain "git command failed: git describe\nfatal:"
+    }
+
+    @Test
+    fun testErrorReturned() {
+        val g = LSGit(tmp.root)
+        g.gitCmd("describe") {
+            "the error was -> ${it.reader().readText()}"
+        } shouldStartWith "the error was -> fatal:"
     }
 }

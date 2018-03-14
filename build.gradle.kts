@@ -30,7 +30,7 @@ dependencies {
     testCompile("junit:junit:4.12")
     testCompile(kotlin("test"))
     testCompile(kotlin("test-junit"))
-    testCompile("org.amshove.kluent:kluent:1.32")
+    testCompile("org.amshove.kluent:kluent:1.35")
 }
 
 publishing {
