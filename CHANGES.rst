@@ -2,8 +2,8 @@
 Changes for Lovely Gradle Plugin
 ================================
 
-unreleased
-==========
+2018/03/15 0.0.5
+================
 
  - allow release/x.x and default branch as target for createTag
 
