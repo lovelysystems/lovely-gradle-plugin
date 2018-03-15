@@ -5,6 +5,8 @@ Changes for Lovely Gradle Plugin
 unreleased
 ==========
 
+ - allow release/x.x and default branch as target for createTag
+
  - release versions can now have an optional revision (e.g: 1.2.3-1)
 
  - fixed an issue that prevented git errors to be logged

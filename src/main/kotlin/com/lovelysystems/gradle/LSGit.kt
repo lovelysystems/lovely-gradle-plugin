@@ -71,15 +71,18 @@ class LSGit(private val dir: File) {
         }
     }
 
-    private fun validateHeadIsMasterAndPushed() {
-        val res = gitCmd("log", "--pretty=format:%D", "-n", "1")
+    fun validateHeadIsOnValidRemoteBranch() {
 
-        if (!res.startsWith("HEAD -> master")) {
-            throw RuntimeException("Current head is not on master")
+        val branches = gitCmd("branch", "-r", "--contains").lines().map { it.trim() }.filter { it.isNotEmpty() }
+
+        if (branches.isEmpty()) {
+            throw RuntimeException("Current HEAD does not point to any remote branches")
         }
 
-        if (!res.contains("origin/master")) {
-            throw RuntimeException("Current head is not in sync with origin/master")
+        if (branches.find {
+                (it == "origin/master" || it.startsWith("origin/HEAD -> ") || it.startsWith("origin/release/"))
+            } == null) {
+            throw RuntimeException("The current HEAD is not in sync with any valid remote branch, it points to $branches")
         }
     }
 
@@ -95,7 +98,7 @@ class LSGit(private val dir: File) {
             changeLog.latestVersion() ?: throw RuntimeException("Changelog entry for release cannot be found")
 
         fetch()
-        validateHeadIsMasterAndPushed()
+        validateHeadIsOnValidRemoteBranch()
 
         val currentVersion = describe()
         if (isProductionVersion(currentVersion)) {

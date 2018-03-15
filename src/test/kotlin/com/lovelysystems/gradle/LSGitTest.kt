@@ -70,6 +70,48 @@ class LSGitTest {
     }
 
     @Test
+    fun testRemoteBranchValidation() {
+
+        val downstream = createSampleRepos(tmp).second
+
+        val local = LSGit(downstream.repository.workTree)
+
+        downstream.createVersionedFile("some.txt")
+
+        local.gitCmd("checkout", "-b", "my-work-branch")
+        local.gitCmd("push", "--set-upstream", "origin", "my-work-branch")
+        local::validateHeadIsOnValidRemoteBranch shouldThrow RuntimeException::class withMessage
+                "The current HEAD is not in sync with any valid remote branch, it points to [origin/my-work-branch]"
+
+
+        local.gitCmd("push", "--set-upstream", "origin", "master")
+        local.validateHeadIsOnValidRemoteBranch()
+
+
+        local.gitCmd("fetch")
+        local.gitCmd("checkout", "-b", "release/0.2")
+        downstream.createVersionedFile("other.txt")
+        local.gitCmd("push", "--set-upstream", "origin", "release/0.2")
+        local.validateHeadIsOnValidRemoteBranch()
+    }
+
+    @Test
+    fun testDefaultBranch() {
+        val upstream = createSampleRepos(tmp).first
+        val remote = LSGit(upstream.repository.workTree)
+        remote.gitCmd("checkout", "-b", "develop")
+        upstream.createVersionedFile("new.txt")
+
+        val newClone = tmp.newFolder("newclone")
+        Runtime.getRuntime().exec(
+            arrayOf("git", "clone", upstream.repository.workTree.absolutePath, newClone.absolutePath)
+        ).waitFor()
+        val local2 = LSGit(newClone)
+        local2.gitCmd("checkout", "develop")
+        local2.validateHeadIsOnValidRemoteBranch()
+    }
+
+    @Test
     fun testCreateTag() {
 
         val downstream = createSampleRepos(tmp).second
@@ -83,7 +125,7 @@ class LSGitTest {
 
         downstream.createVersionedFile("b.txt")
         func = { g.createVersionTag() }
-        func shouldThrow RuntimeException::class withMessage "Current head is not in sync with origin/master"
+        func shouldThrow RuntimeException::class withMessage "Current HEAD does not point to any remote branches"
 
         downstream.push().call()
 

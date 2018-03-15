@@ -40,7 +40,7 @@ if the validation passes. The following conditions need to be met in order for `
 
  - The latest changelog entry in the changes file needs to have a valid version number (e.g: 0.1.2).
  - There are no uncommitted changes or unknown files in the work tree.
- - Your current branch is `master` and is in sync with the upstream `master` branch head.
+ - Your current branch is the default branch or a release branch (e.g: `release/0.1`)
  - The same or a newer git tag does not exist.
 
 ## Docker Project
