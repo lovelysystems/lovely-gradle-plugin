@@ -85,7 +85,7 @@ class LSGit(private val dir: File) {
 
     private fun latestLocalGitTagVersion(): Version? {
         val res = gitCmd("tag", "-l", "--sort=-v:refname").lines()
-        return if (res.isEmpty()) null else Version(res.first { isProductionVersion(it) })
+        return if (res.isEmpty()) null else Version.fromIdent(res.first { isProductionVersion(it) })
     }
 
     fun createVersionTag(): Pair<String, Version> {

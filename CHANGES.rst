@@ -5,6 +5,8 @@ Changes for Lovely Gradle Plugin
 unreleased
 ==========
 
+ - release versions can now have an optional revision (e.g: 1.2.3-1)
+
  - fixed an issue that prevented git errors to be logged
 
  - fixed website and vcs urls in meta data

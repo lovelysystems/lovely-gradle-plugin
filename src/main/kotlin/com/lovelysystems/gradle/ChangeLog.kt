@@ -3,33 +3,46 @@ package com.lovelysystems.gradle
 import java.io.File
 import java.text.SimpleDateFormat
 
-val RELEASE_LINE_PAT = Regex("^(20[0-9]{2}/[0-9]{2}/[0-9]{2})\\s([0-9]+\\.[0-9]+\\.[0-9]+)$")
+val RELEASE_VERSION_PATTERN = Regex("([0-9]+)\\.([0-9]+)\\.([0-9]+)(-([0-9]+))?")
+val RELEASE_LINE_PAT = Regex("^(20[0-9]{2}/[0-9]{2}/[0-9]{2})\\s($RELEASE_VERSION_PATTERN)$")
 val HEADING_LINE_PAT = Regex("===+s*")
 val CHANGELOG_DATE_FORMAT = SimpleDateFormat("yyyy/MM/dd")
-val RELEASE_VERSION_PATTERN = Regex("^([0-9]+)\\.([0-9]+)\\.([0-9]+)$")
 
-class Version(ident: String) : Comparable<Version> {
+/**
+ * The version of a release which is in the form of <MAJOR>.<FEATURE>.<PATCH>[-<REVISION>]
+ */
+data class Version(val major: Int, val feature: Int, val patch: Int, val revision: Int) : Comparable<Version> {
 
-    private var parts: IntArray
-
-    init {
-        val m = RELEASE_VERSION_PATTERN.matchEntire(ident) ?: throw RuntimeException("Not a valid release version: $ident")
-        parts = m.groupValues.subList(1, 4).map { it.toInt() }.toIntArray()
+    companion object {
+        /**
+         * Creates a new version object from the given identifier String
+         */
+        fun fromIdent(ident: String): Version {
+            val m =
+                RELEASE_VERSION_PATTERN.matchEntire(ident)
+                        ?: throw RuntimeException("Not a valid release version: $ident")
+            return Version(
+                m.groupValues[1].toInt(),
+                m.groupValues[2].toInt(),
+                m.groupValues[3].toInt(),
+                if (m.groupValues[5].isNotEmpty()) m.groupValues[5].toInt() else -1
+            )
+        }
     }
 
     override fun compareTo(other: Version): Int {
-        var res = 0
-        for (i in 0..2) {
-            res = parts[i].compareTo(other.parts[i])
-            if (res != 0) {
-                break
+
+        return major.compareTo(other.major).let {
+            if (it != 0) it else feature.compareTo(other.feature).let {
+                if (it != 0) it else patch.compareTo(other.patch).let {
+                    if (it != 0) it else revision.compareTo(other.revision)
+                }
             }
         }
-        return res
     }
 
     override fun toString(): String {
-        return parts.joinToString(".")
+        return """$major.$feature.$patch${if (revision == -1) "" else "-$revision"}"""
     }
 }
 
@@ -52,7 +65,7 @@ class ChangeLog(private val file: File) {
                     val m = RELEASE_LINE_PAT.matchEntire(rel)
                     if (m != null) {
                         CHANGELOG_DATE_FORMAT.parse(m.groupValues[1])
-                        val version = Version(m.groupValues[2])
+                        val version = Version.fromIdent(m.groupValues[2])
                         return Pair(m.groupValues[1], version)
                     } else if (rel == "unreleased") {
                         return null

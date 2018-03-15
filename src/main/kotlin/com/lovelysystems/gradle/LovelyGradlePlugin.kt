@@ -1,4 +1,4 @@
-@file:Suppress("UnusedImport")
+@file:Suppress("UnusedImport", "unused", "UNUSED_VARIABLE")
 
 package com.lovelysystems.gradle
 
@@ -11,7 +11,7 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.*
 
-open class LovelyPluginExtension(val project: Project) {
+open class LovelyPluginExtension(private val project: Project) {
 
     fun gitProject() {
         project.gitProject()
@@ -24,7 +24,6 @@ open class LovelyPluginExtension(val project: Project) {
     }
 }
 
-@Suppress("unused")
 class LovelyGradlePlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = with(project) {
         extensions.create("lovely", LovelyPluginExtension::class.java, project)
@@ -38,7 +37,6 @@ open class CreateTagTask : DefaultTask() {
         description = "Creates a new tag for the given version and pushes it upstream"
     }
 
-    @Suppress("unused")
     @TaskAction
     fun create() {
         val g = LSGit(project.rootProject.rootDir)
@@ -47,7 +45,7 @@ open class CreateTagTask : DefaultTask() {
     }
 }
 
-val GIT_GROUP = "Git"
+const val GIT_GROUP = "Git"
 
 fun Project.gitProject() {
     val g = LSGit(rootProject.rootDir)
