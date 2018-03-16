@@ -11,7 +11,7 @@ val CHANGELOG_DATE_FORMAT = SimpleDateFormat("yyyy/MM/dd")
 /**
  * The version of a release which is in the form of <MAJOR>.<FEATURE>.<PATCH>[-<REVISION>]
  */
-data class Version(val major: Int, val feature: Int, val patch: Int, val revision: Int) : Comparable<Version> {
+data class Version(val major: Int, val feature: Int, val patch: Int, val revision: Int = -1) : Comparable<Version> {
 
     companion object {
         /**

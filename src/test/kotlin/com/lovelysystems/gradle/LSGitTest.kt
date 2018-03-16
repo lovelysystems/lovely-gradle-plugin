@@ -152,4 +152,19 @@ class LSGitTest {
             "the error was -> ${it.reader().readText()}"
         } shouldStartWith "the error was -> fatal:"
     }
+
+    @Test
+    fun testLatestLocalGitTagVersion() {
+        val g = LSGit(tmp.root)
+        g.gitCmd("init")
+        g.latestLocalGitTagVersion() shouldBe null
+        tmp.root.resolve("some.txt").writeText("content")
+        g.gitCmd("add", ".")
+        g.gitCmd("commit", "-m", "some commit")
+        g.gitCmd("tag", "not_a_valid_release_tag")
+        g.latestLocalGitTagVersion() shouldBe null
+
+        g.gitCmd("tag", "0.0.1")
+        g.latestLocalGitTagVersion() shouldEqual Version(0, 0, 1)
+    }
 }
