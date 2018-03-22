@@ -5,6 +5,8 @@ Changes for Lovely Gradle Plugin
 unreleased
 ==========
 
+ - fixed an issue which causes git commands to hang in some setups
+
  - fixed latest local release tag lookup, which failed when only none-release tags are present
 
 2018/03/15 0.0.5

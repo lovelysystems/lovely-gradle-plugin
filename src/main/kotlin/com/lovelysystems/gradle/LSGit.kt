@@ -1,7 +1,6 @@
 package com.lovelysystems.gradle
 
 import java.io.File
-import java.io.InputStream
 import java.util.concurrent.TimeUnit
 
 fun isProductionVersion(version: String): Boolean {
@@ -14,20 +13,31 @@ class LSGit(private val dir: File) {
         assert(dir.isDirectory) { "'$dir' is not a directory" }
     }
 
-    fun gitCmd(vararg args: String, onError: ((InputStream) -> String)? = null): String {
-        val cmd = arrayOf("git") + args
-        val proc = Runtime.getRuntime().exec(
-            cmd,
-            emptyArray(),
-            dir
-        )
-        proc.waitFor(10, TimeUnit.SECONDS)
-        return if (proc.exitValue() == 0) {
-            proc.inputStream.reader().readText().trim()
-        } else {
-            onError?.invoke(proc.errorStream) ?: throw RuntimeException(
-                "git command failed: ${cmd.joinToString(" ")}\n${proc.errorStream.reader().readText()}"
-            )
+    fun gitCmd(vararg args: String, onError: ((String) -> String)? = null): String {
+        val cmd = listOf("git") + args
+
+        val stdoutFile = createTempFile()
+        val stderrFile = createTempFile()
+
+        try {
+            val proc = ProcessBuilder(cmd)
+                .directory(dir)
+                .redirectOutput(stdoutFile)
+                .redirectError(stderrFile)
+                .start()
+            proc.waitFor(10, TimeUnit.SECONDS)
+            val stdout = stdoutFile.readText().trim()
+            val stderr = stderrFile.readText().trim()
+            return if (proc.exitValue() == 0) {
+                return stdout
+            } else {
+                onError?.invoke(stderr) ?: throw RuntimeException(
+                    "git command failed: ${cmd.joinToString(" ")}\n$stderr"
+                )
+            }
+        } finally {
+            stderrFile.delete()
+            stdoutFile.delete()
         }
     }
 
