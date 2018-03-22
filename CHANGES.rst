@@ -2,8 +2,8 @@
 Changes for Lovely Gradle Plugin
 ================================
 
-unreleased
-==========
+2018/03/22 0.0.6
+================
 
  - fixed an issue which causes git commands to hang in some setups
 
