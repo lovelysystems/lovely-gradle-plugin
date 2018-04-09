@@ -2,8 +2,8 @@ plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
     `maven-publish`
-    kotlin("jvm") version "1.2.30"
-    id("com.gradle.plugin-publish") version "0.9.9"
+    kotlin("jvm") version "1.2.31"
+    id("com.gradle.plugin-publish") version "0.9.10"
 }
 
 repositories {
@@ -63,5 +63,5 @@ pluginBundle {
 }
 
 task(name = "wrapper", type = Wrapper::class) {
-    gradleVersion = "4.6"
+    gradleVersion = "4.7"
 }
