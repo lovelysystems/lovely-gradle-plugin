@@ -2,7 +2,7 @@ plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
     `maven-publish`
-    kotlin("jvm") version "1.2.31"
+    kotlin("jvm") version "1.2.50"
     id("com.gradle.plugin-publish") version "0.9.10"
 }
 
@@ -11,7 +11,7 @@ repositories {
 }
 
 group = "com.lovelysystems"
-version = "0.0.6"
+version = "0.0.7"
 
 val pluginId = "com.lovelysystems.gradle"
 
@@ -60,8 +60,4 @@ pluginBundle {
             description = "Gradle Plugin for Lovely Systems Projects"
         }
     }
-}
-
-task(name = "wrapper", type = Wrapper::class) {
-    gradleVersion = "4.7"
 }

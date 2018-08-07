@@ -2,6 +2,11 @@
 Changes for Lovely Gradle Plugin
 ================================
 
+2018/08/08 0.0.7
+================
+
+ - use gradle 4.9, fixes gradle 4.8+ failures in projects using this plugin
+
 2018/03/22 0.0.6
 ================
 
