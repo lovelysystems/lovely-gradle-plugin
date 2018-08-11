@@ -11,7 +11,7 @@ and can be applied to your project by adding it to the plugins section of your `
 
 ```
 plugins {
-    id("com.lovelysystems.gradle") version ("0.0.7")
+    id("com.lovelysystems.gradle") version ("1.0.0")
 }
 ```
 

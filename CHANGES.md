@@ -1,6 +1,6 @@
 # Changes for Lovely Gradle Plugin
 
-## unreleased
+## 2018-08-11 / 1.0.0
 
 - added printChangeLogVersion task
 - additionally support CHANGES.txt as restructuredText changelog
