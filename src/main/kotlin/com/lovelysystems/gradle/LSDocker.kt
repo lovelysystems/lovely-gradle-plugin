@@ -1,16 +1,15 @@
 package com.lovelysystems.gradle
 
 import org.gradle.api.Project
-import org.gradle.api.distribution.plugins.DistributionPlugin
 import org.gradle.api.file.CopySpec
-import org.gradle.api.plugins.ApplicationPlugin
-import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Exec
 import org.gradle.api.tasks.Sync
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.creating
+import org.gradle.kotlin.dsl.getValue
+import org.gradle.kotlin.dsl.invoke
 import java.io.ByteArrayOutputStream
 
-val DOCKER_GROUP = "Docker"
+const val DOCKER_GROUP = "Docker"
 
 private fun Project.validateVersion() {
     val tag = version.toString()
@@ -21,7 +20,7 @@ private fun Project.validateVersion() {
 
 fun Project.dockerProject(repository: String, files: CopySpec) {
 
-    val dockerBuildDir =  project.buildDir.resolve("docker")
+    val dockerBuildDir = project.buildDir.resolve("docker")
 
     fun Project.dockerTag(versionTag: String = version.toString()): String {
         return "$repository:${versionTag}"
@@ -29,10 +28,11 @@ fun Project.dockerProject(repository: String, files: CopySpec) {
 
     tasks {
 
+        @Suppress("UNUSED_VARIABLE")
         val printDockerTag by creating {
             description = "Prints out the computed docker tag for this project"
             group = DOCKER_GROUP
-            doLast{
+            doLast {
                 println(dockerTag())
             }
         }
@@ -64,12 +64,11 @@ fun Project.dockerProject(repository: String, files: CopySpec) {
             )
         }
 
-        val pushDockerImage by creating() {
+        val pushDockerImage by creating {
             dependsOn(buildDockerImage)
             group = DOCKER_GROUP
             description = "Pushes the docker image to the registry"
             val tag = dockerTag()
-            val devTag = dockerTag("dev")
             inputs.files("Dockerfile")
 
             if (!tag.endsWith(".dirty")) {
@@ -98,7 +97,8 @@ fun Project.dockerProject(repository: String, files: CopySpec) {
             }
         }
 
-        val pushDockerDevImage by creating() {
+        @Suppress("UNUSED_VARIABLE")
+        val pushDockerDevImage by creating {
             dependsOn(pushDockerImage)
             group = DOCKER_GROUP
             description = "Pushes the docker image to the registry and tag it as dev"

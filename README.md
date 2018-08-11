@@ -33,6 +33,7 @@ lovely {
 ### Tasks
 
   * `printVersion`: Prints out the current version of the project
+  * `printChangeLogVersion`: Parses the changes file and prints out the latest defined version
   * `createTag` - Creates a new git tag for the current version and pushes the tag to the upstream
 
 The `createTag` task creates a version tag for the latest version defined in the `CHANGES.rst` file

@@ -102,9 +102,13 @@ class LSGit(private val dir: File) {
         }
     }
 
+    fun parseChangeLog(): ChangeLog {
+        return parseChangeLog(dir)
+    }
+
     fun createVersionTag(): Pair<String, Version> {
         validateCleanWorkTree()
-        val changeLog = ChangeLog(dir.resolve("CHANGES.rst"))
+        val changeLog = parseChangeLog()
         val releaseInfo =
             changeLog.latestVersion() ?: throw RuntimeException("Changelog entry for release cannot be found")
 

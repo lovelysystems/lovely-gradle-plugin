@@ -22,7 +22,7 @@ fun createSampleRepos(tmp: TemporaryFolder): Pair<Git, Git> {
     val downstreamPath = tmp.newFolder("downstream")
 
     val upstream = Git.init().setDirectory(upstreamPath).call()
-    upstream.createVersionedFile("CHANGES.rst", content = releasedLog)
+    upstream.createVersionedFile("CHANGES.md", content = releasedLog["md"])
     upstream.tag().setName("0.0.1").setMessage("release tag from upstream").call()
     upstream.createVersionedFile(".gitignore", content = ".gradle\n")
 

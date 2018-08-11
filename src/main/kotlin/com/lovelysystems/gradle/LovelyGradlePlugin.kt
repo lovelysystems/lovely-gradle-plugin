@@ -5,11 +5,10 @@ package com.lovelysystems.gradle
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.distribution.plugins.DistributionPlugin
-import org.gradle.api.file.CopySpec
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.TaskAction
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.creating
+import org.gradle.kotlin.dsl.getValue
+import org.gradle.kotlin.dsl.invoke
 
 open class LovelyPluginExtension(private val project: Project) {
 
@@ -58,8 +57,15 @@ fun Project.gitProject() {
             doLast { println(project.version) }
         }
 
+        val printChangeLogVersion by creating {
+            group = GIT_GROUP
+            description = "Parses the changes file and prints out the latest defined version"
+            doLast { println(g.parseChangeLog().latestVersion() ?: "unreleased") }
+        }
+
         val createTag by creating(CreateTagTask::class) {
         }
+
     }
 }
 

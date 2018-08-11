@@ -3,52 +3,66 @@ package com.lovelysystems.gradle
 import java.io.File
 import java.text.SimpleDateFormat
 
-val RELEASE_VERSION_PATTERN = Regex("([0-9]+)\\.([0-9]+)\\.([0-9]+)(-([0-9]+))?")
-val RELEASE_LINE_PAT = Regex("^(20[0-9]{2}/[0-9]{2}/[0-9]{2})\\s($RELEASE_VERSION_PATTERN)$")
-val HEADING_LINE_PAT = Regex("===+s*")
-val CHANGELOG_DATE_FORMAT = SimpleDateFormat("yyyy/MM/dd")
+val CHANGELOG_NAMES = arrayListOf("CHANGES.md", "CHANGES.rst", "CHANGES.txt")
+val CHANGELOG_DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
 
-/**
- * The version of a release which is in the form of <MAJOR>.<FEATURE>.<PATCH>[-<REVISION>]
- */
-data class Version(val major: Int, val feature: Int, val patch: Int, val revision: Int = -1) : Comparable<Version> {
-
-    companion object {
-        /**
-         * Creates a new version object from the given identifier String
-         */
-        fun fromIdent(ident: String): Version {
-            val m =
-                RELEASE_VERSION_PATTERN.matchEntire(ident)
-                        ?: throw RuntimeException("Not a valid release version: $ident")
-            return Version(
-                m.groupValues[1].toInt(),
-                m.groupValues[2].toInt(),
-                m.groupValues[3].toInt(),
-                if (m.groupValues[5].isNotEmpty()) m.groupValues[5].toInt() else -1
-            )
-        }
+fun parseChangeLog(file: File): ChangeLog {
+    val changeLogFile = if (file.isDirectory) {
+        file.listFiles { f -> CHANGELOG_NAMES.contains(f.name) }.firstOrNull()
+                ?: throw IllegalArgumentException("No changelog found, allowed names are $CHANGELOG_NAMES")
+    } else {
+        file
     }
-
-    override fun compareTo(other: Version): Int {
-
-        return major.compareTo(other.major).let {
-            if (it != 0) it else feature.compareTo(other.feature).let {
-                if (it != 0) it else patch.compareTo(other.patch).let {
-                    if (it != 0) it else revision.compareTo(other.revision)
-                }
-            }
+    return when (changeLogFile.extension) {
+        "md" -> MDChangeLog(changeLogFile)
+        "rst", "txt" -> RSTChangeLog(changeLogFile)
+        else -> {
+            throw IllegalArgumentException("Unknown file extension for changelog '${file.extension}'")
         }
-    }
-
-    override fun toString(): String {
-        return """$major.$feature.$patch${if (revision == -1) "" else "-$revision"}"""
     }
 }
 
-class ChangeLog(private val file: File) {
+abstract class ChangeLog(val file: File) {
+    abstract fun latestVersion(): Pair<String, Version>?
+}
 
-    fun latestVersion(): Pair<String, Version>? {
+class MDChangeLog(file: File) : ChangeLog(file) {
+
+    companion object {
+        val RELEASE_LINE_PAT = Regex("^##\\s(20[0-9]{2}-[0-9]{2}-[0-9]{2})\\s/\\s($RELEASE_VERSION_PATTERN)$")
+    }
+
+    override fun latestVersion(): Pair<String, Version>? {
+
+        file.useLines {
+            for (l in it) {
+                if (l.startsWith("## ")) {
+                    val rel = l.trim()
+                    val m = RELEASE_LINE_PAT.matchEntire(rel)
+                    if (m != null) {
+                        val day = CHANGELOG_DATE_FORMAT.parse(m.groupValues[1])
+                        val version = Version.fromIdent(m.groupValues[2])
+                        return Pair(CHANGELOG_DATE_FORMAT.format(day), version)
+                    } else if (rel == "## unreleased") {
+                        return null
+                    }
+                    throw RuntimeException("Release line not found in first heading")
+                }
+            }
+        }
+        throw RuntimeException("No release line found")
+    }
+}
+
+class RSTChangeLog(file: File) : ChangeLog(file) {
+
+    companion object {
+        val RELEASE_LINE_PAT = Regex("^(20[0-9]{2}/[0-9]{2}/[0-9]{2})\\s($RELEASE_VERSION_PATTERN)$")
+        val HEADING_LINE_PAT = Regex("===+s*")
+        val RST_CHANGELOG_DATE_FORMAT = SimpleDateFormat("yyyy/MM/dd")
+    }
+
+    override fun latestVersion(): Pair<String, Version>? {
         var seenHeadingLines = 0
 
         file.useLines {
@@ -64,9 +78,9 @@ class ChangeLog(private val file: File) {
                     val rel = previousLine.trim()
                     val m = RELEASE_LINE_PAT.matchEntire(rel)
                     if (m != null) {
-                        CHANGELOG_DATE_FORMAT.parse(m.groupValues[1])
+                        val day = RST_CHANGELOG_DATE_FORMAT.parse(m.groupValues[1])
                         val version = Version.fromIdent(m.groupValues[2])
-                        return Pair(m.groupValues[1], version)
+                        return Pair(CHANGELOG_DATE_FORMAT.format(day), version)
                     } else if (rel == "unreleased") {
                         return null
                     }
