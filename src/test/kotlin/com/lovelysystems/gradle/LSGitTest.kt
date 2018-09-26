@@ -1,7 +1,6 @@
 package com.lovelysystems.gradle
 
 import org.amshove.kluent.*
-import org.eclipse.jgit.api.Git
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -15,23 +14,19 @@ class LSGitTest {
     fun testDescribe() {
 
         val g = LSGit(tmp.root)
-        g.describe() shouldBeEqualTo "unversioned"
-
-        val git = Git.init()
-            .setDirectory(tmp.root)
-            .call()
+        g.gitCmd("init")
 
         g.describe() shouldBeEqualTo "unversioned"
 
-        git.createVersionedFile("x.txt", tag = "0.0.0")
+        g.createVersionedFile("x.txt", tag = "0.0.0")
 
         g.describe() shouldBeEqualTo "0.0.0"
 
-        git.createVersionedFile("y.txt", false)
+        g.createVersionedFile("y.txt", false)
 
         g.describe() shouldBeEqualTo "0.0.0.dirty"
 
-        git.commit().setMessage("added x.txt").call()
+        g.gitCmd("commit", "-m", "added x.txt")
 
         g.describe() shouldMatch "^0.0.0-1-[^.]+$"
     }
@@ -42,13 +37,12 @@ class LSGitTest {
         val upstreamPath = tmp.newFolder("upstream")
         val downstreamPath = tmp.newFolder("downstream")
 
-        val upstream = Git.init().setDirectory(upstreamPath).call()
+        val upstream = LSGit(upstreamPath)
+        upstream.gitCmd("init")
         upstream.createVersionedFile("a.txt", tag = "0.0.1")
 
-        val downstream = Git.cloneRepository().setDirectory(downstreamPath).setURI(
-            upstreamPath.toURI()
-                .toASCIIString()
-        ).call()
+        val downstream = LSGit(downstreamPath)
+        downstream.gitCmd("clone", "${upstreamPath.absolutePath}/.git", "./")
 
         downstream.createVersionedFile("b.txt", tag = "0.0.2")
 
@@ -62,7 +56,7 @@ class LSGitTest {
         var func = { g.validateProductionTag("0.0.2") }
         func shouldThrow RuntimeException::class withMessage "Local tag 0.0.2 does not exist on origin upstream"
 
-        upstream.tag().setName("0.0.2").call()
+        upstream.gitCmd("tag", "0.0.2")
 
         // the tag differs
         func = { g.validateProductionTag("0.0.2") }
@@ -74,39 +68,36 @@ class LSGitTest {
 
         val downstream = createSampleRepos(tmp).second
 
-        val local = LSGit(downstream.repository.workTree)
 
         downstream.createVersionedFile("some.txt")
 
-        local.gitCmd("checkout", "-b", "my-work-branch")
-        local.gitCmd("push", "--set-upstream", "origin", "my-work-branch")
-        local::validateHeadIsOnValidRemoteBranch shouldThrow RuntimeException::class withMessage
+        downstream.gitCmd("checkout", "-b", "my-work-branch")
+        downstream.gitCmd("push", "--set-upstream", "origin", "my-work-branch")
+        downstream::validateHeadIsOnValidRemoteBranch shouldThrow RuntimeException::class withMessage
                 "The current HEAD is not in sync with any valid remote branch, it points to [origin/my-work-branch]"
 
 
-        local.gitCmd("push", "--set-upstream", "origin", "master")
-        local.validateHeadIsOnValidRemoteBranch()
+        downstream.gitCmd("push", "--set-upstream", "origin", "master")
+        downstream.validateHeadIsOnValidRemoteBranch()
 
 
-        local.gitCmd("fetch")
-        local.gitCmd("checkout", "-b", "release/0.2")
+        downstream.gitCmd("fetch")
+        downstream.gitCmd("checkout", "-b", "release/0.2")
         downstream.createVersionedFile("other.txt")
-        local.gitCmd("push", "--set-upstream", "origin", "release/0.2")
-        local.validateHeadIsOnValidRemoteBranch()
+        downstream.gitCmd("push", "--set-upstream", "origin", "release/0.2")
+        downstream.validateHeadIsOnValidRemoteBranch()
     }
 
     @Test
     fun testDefaultBranch() {
         val upstream = createSampleRepos(tmp).first
-        val remote = LSGit(upstream.repository.workTree)
-        remote.gitCmd("checkout", "-b", "develop")
+        upstream.gitCmd("checkout", "-b", "develop")
         upstream.createVersionedFile("new.txt")
 
         val newClone = tmp.newFolder("newclone")
-        Runtime.getRuntime().exec(
-            arrayOf("git", "clone", upstream.repository.workTree.absolutePath, newClone.absolutePath)
-        ).waitFor()
         val local2 = LSGit(newClone)
+        local2.gitCmd("clone", upstream.dir.absolutePath, "./")
+
         local2.gitCmd("checkout", "develop")
         local2.validateHeadIsOnValidRemoteBranch()
     }
@@ -116,20 +107,19 @@ class LSGitTest {
 
         val downstream = createSampleRepos(tmp).second
 
-        val g = LSGit(downstream.repository.workTree)
-        g.createVersionTag().second.toString() shouldBeEqualTo "0.0.2"
-        g.validateProductionTag(g.describe())
+        downstream.createVersionTag().second.toString() shouldBeEqualTo "0.0.2"
+        downstream.validateProductionTag(downstream.describe())
 
-        var func = { g.createVersionTag() }
+        var func = { downstream.createVersionTag() }
         func shouldThrow RuntimeException::class withMessage "Current head is already tagged with production tag 0.0.2"
 
         downstream.createVersionedFile("b.txt")
-        func = { g.createVersionTag() }
+        func = { downstream.createVersionTag() }
         func shouldThrow RuntimeException::class withMessage "Current HEAD does not point to any remote branches"
 
-        downstream.push().call()
+        downstream.gitCmd("push", "--set-upstream", "origin", "master")
 
-        func = { g.createVersionTag() }
+        func = { downstream.createVersionTag() }
         func shouldThrow RuntimeException::class withMessage "Version number superseded: 0.0.2 >= 0.0.2"
     }
 

@@ -7,7 +7,7 @@ fun isProductionVersion(version: String): Boolean {
     return RELEASE_VERSION_PATTERN.matchEntire(version) != null
 }
 
-class LSGit(private val dir: File) {
+class LSGit(val dir: File) {
 
     init {
         assert(dir.isDirectory) { "'$dir' is not a directory" }
