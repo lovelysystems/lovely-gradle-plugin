@@ -2,8 +2,7 @@
 
 ## unreleased
 
-- removed jgit dependency
-- used com.lovelysystems.gradle.LSGit instead
+- removed jgit dependency, used com.lovelysystems.gradle.LSGit instead
 
 ## 2018-08-11 / 1.0.0
 
