@@ -1,34 +1,37 @@
 package com.lovelysystems.gradle
 
-import org.eclipse.jgit.api.Git
 import org.junit.rules.TemporaryFolder
+import java.io.File
 
-fun Git.createVersionedFile(
-    name: String, commit: Boolean = true, tag: String = "",
-    content: String? = null
+fun LSGit.createVersionedFile(
+        name: String, commit: Boolean = true, tag: String = "",
+        content: String? = null
 ) {
-    repository.workTree.resolve(name).writeText(content ?: "content of $name")
-    add().addFilepattern(name).call()
+    File("${dir.absolutePath}/$name").printWriter().use { out ->
+        out.print(content ?: "content of $name")
+    }
+    gitCmd("add", name)
     if (commit) {
-        commit().setMessage("added $name").call()
+        gitCmd("commit", "-m", "'added $name'")
     }
     if (tag.isNotEmpty()) {
-        tag().setName(tag).call()
+        gitCmd("tag", tag)
     }
 }
 
-fun createSampleRepos(tmp: TemporaryFolder): Pair<Git, Git> {
+fun createSampleRepos(tmp: TemporaryFolder): Pair<LSGit, LSGit> {
     val upstreamPath = tmp.newFolder("upstream")
     val downstreamPath = tmp.newFolder("downstream")
 
-    val upstream = Git.init().setDirectory(upstreamPath).call()
+    val upstream = LSGit(upstreamPath)
+    upstream.gitCmd("init")
+    upstream.gitCmd("config", "receive.denyCurrentBranch", "warn")
     upstream.createVersionedFile("CHANGES.md", content = releasedLog["md"])
-    upstream.tag().setName("0.0.1").setMessage("release tag from upstream").call()
+    upstream.gitCmd("tag", "-a", "0.0.1", "-m", "release tag from upstream")
     upstream.createVersionedFile(".gitignore", content = ".gradle\n")
 
-    val downstream = Git.cloneRepository().setDirectory(downstreamPath).setURI(
-        upstreamPath.toURI()
-            .toASCIIString()
-    ).call()
+    val downstream = LSGit(downstreamPath)
+    downstream.gitCmd("clone", "${upstreamPath.absolutePath}/.git", "./")
+
     return Pair(upstream, downstream)
 }

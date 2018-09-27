@@ -37,9 +37,9 @@ class LovelyGradlePluginTest {
              }
              """
         )
-        downstream.pull().call()
+        downstream.gitCmd("pull")
 
-        val runner = GradleRunner.create().withPluginClasspath().withProjectDir(downstream.repository.workTree)
+        val runner = GradleRunner.create().withPluginClasspath().withProjectDir(downstream.dir)
 
         var r = runner.withArguments("printChangeLogVersion", "-q", "--stacktrace", "-q").build()
         r.output.trim() shouldBeEqualTo "(2018-01-15, 0.0.2)"

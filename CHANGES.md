@@ -1,5 +1,9 @@
 # Changes for Lovely Gradle Plugin
 
+## unreleased
+
+- removed jgit dependency, used com.lovelysystems.gradle.LSGit instead
+
 ## 2018-08-11 / 1.0.0
 
 - added printChangeLogVersion task
