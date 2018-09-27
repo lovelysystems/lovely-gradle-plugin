@@ -121,6 +121,33 @@ class LSGitTest {
 
         func = { downstream.createVersionTag() }
         func shouldThrow RuntimeException::class withMessage "Version number superseded: 0.0.2 >= 0.0.2"
+
+        downstream.gitCmd("checkout", "-b", "release/0.0.0")
+        downstream.gitCmd("checkout", "master")
+
+        downstream.createVersionedFile("newRealease.txt", tag = "0.1.0")
+
+        downstream.gitCmd("checkout", "release/0.0.0")
+        downstream.createVersionedFile("CHANGES.md", content =
+        """
+# Changes for some cool project
+
+## 2018-01-16 / 0.0.3
+
+- the hotfix in 0.0.3
+
+## 2018-01-15 / 0.0.2
+
+- the change in 0.0.2
+
+## 2017-01-15 0.0.1
+
+- initial version
+"""
+        )
+        downstream.gitCmd("push", "--set-upstream", "origin", "release/0.0.0")
+        downstream.createVersionTag().second.toString() shouldBeEqualTo "0.0.3"
+        downstream.validateProductionTag(downstream.describe())
     }
 
     @Test
@@ -155,6 +182,11 @@ class LSGitTest {
         g.latestLocalGitTagVersion() shouldBe null
 
         g.gitCmd("tag", "0.0.1")
+        g.latestLocalGitTagVersion() shouldEqual Version(0, 0, 1)
+        g.gitCmd("checkout", "-b", "release")
+        g.createVersionedFile("release.txt", tag = "0.1.0")
+        g.latestLocalGitTagVersion() shouldEqual Version(0, 1, 0)
+        g.gitCmd("checkout", "master")
         g.latestLocalGitTagVersion() shouldEqual Version(0, 0, 1)
     }
 }

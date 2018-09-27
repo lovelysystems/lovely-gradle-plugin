@@ -97,8 +97,13 @@ class LSGit(val dir: File) {
     }
 
     fun latestLocalGitTagVersion(): Version? {
-        return gitCmd("tag", "-l", "--sort=-v:refname").lines().find { isProductionVersion(it) }?.let {
-            Version.fromIdent(it)
+        // --merged flag fails if there are no commits
+        try {
+            return gitCmd("tag", "-l", "--sort=-v:refname", "--merged").lines().find { isProductionVersion(it) }?.let {
+                Version.fromIdent(it)
+            }
+        } catch (e: Exception) {
+            return null
         }
     }
 
