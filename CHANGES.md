@@ -2,8 +2,7 @@
 
 ## unreleased
 
-- removed jgit dependency, used com.lovelysystems.gradle.LSGit instead
-- add --merged flag to latestLocalGitTagVersion 
+- allow patch updates in createTag for older releases
 
 ## 2018-08-11 / 1.0.0
 
