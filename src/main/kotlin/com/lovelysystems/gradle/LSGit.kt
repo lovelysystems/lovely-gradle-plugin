@@ -96,7 +96,7 @@ class LSGit(val dir: File) {
         }
     }
 
-    fun latestLocalGitTagVersion(releaseVersion: Version? = null): Version? {
+    fun latestLocalGitTagPatchOfVersion(releaseVersion: Version? = null): Version? {
         var versions = gitCmd("tag", "-l", "--sort=-v:refname").lines().filter { isProductionVersion(it) }.map(Version.Companion::fromIdent)
         versions =
                 if (releaseVersion != null)
@@ -125,9 +125,9 @@ class LSGit(val dir: File) {
             throw RuntimeException("Current head is already tagged with production tag $currentVersion")
         }
 
-        val latestVersionLocal = latestLocalGitTagVersion(releaseInfo.second)
-        if (latestVersionLocal != null && latestVersionLocal >= releaseInfo.second) {
-            throw RuntimeException("Version number superseded: $latestVersionLocal >= ${releaseInfo.second}")
+        val latestPatchOfVersionLocal = latestLocalGitTagPatchOfVersion(releaseInfo.second)
+        if (latestPatchOfVersionLocal != null && latestPatchOfVersionLocal >= releaseInfo.second) {
+            throw RuntimeException("Version number superseded: $latestPatchOfVersionLocal >= ${releaseInfo.second}")
         }
 
         gitCmd(

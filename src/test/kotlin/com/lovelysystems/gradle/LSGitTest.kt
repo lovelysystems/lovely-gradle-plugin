@@ -148,6 +148,12 @@ class LSGitTest {
         downstream.gitCmd("push", "--set-upstream", "origin", "release/0.0.0")
         downstream.createVersionTag().second.toString() shouldBeEqualTo "0.0.3"
         downstream.validateProductionTag(downstream.describe())
+
+        downstream.createVersionedFile("c.txt")
+        downstream.gitCmd("push", "--set-upstream", "origin", "release/0.0.0")
+
+        func = { downstream.createVersionTag() }
+        func shouldThrow RuntimeException::class withMessage "Version number superseded: 0.0.3 >= 0.0.3"
     }
 
     @Test
@@ -171,26 +177,26 @@ class LSGitTest {
     }
 
     @Test
-    fun testLatestLocalGitTagVersion() {
+    fun testLatestLocalGitTagPatchOfVersion() {
         val g = LSGit(tmp.root)
         g.gitCmd("init")
-        g.latestLocalGitTagVersion() shouldBe null
+        g.latestLocalGitTagPatchOfVersion() shouldBe null
         tmp.root.resolve("some.txt").writeText("content")
         g.gitCmd("add", ".")
         g.gitCmd("commit", "-m", "some commit")
         g.gitCmd("tag", "not_a_valid_release_tag")
-        g.latestLocalGitTagVersion() shouldBe null
+        g.latestLocalGitTagPatchOfVersion() shouldBe null
 
         g.gitCmd("tag", "0.0.1")
-        g.latestLocalGitTagVersion() shouldEqual Version(0, 0, 1)
+        g.latestLocalGitTagPatchOfVersion() shouldEqual Version(0, 0, 1)
 
         g.gitCmd("checkout", "-b", "release")
 
         g.gitCmd("checkout", "master")
         g.createVersionedFile("release.txt", tag = "0.1.0")
-        g.latestLocalGitTagVersion() shouldEqual Version(0, 1, 0)
+        g.latestLocalGitTagPatchOfVersion() shouldEqual Version(0, 1, 0)
 
         g.gitCmd("checkout", "release")
-        g.latestLocalGitTagVersion(Version(0, 0, 0)) shouldEqual Version(0, 0, 1)
+        g.latestLocalGitTagPatchOfVersion(Version(0, 0, 0)) shouldEqual Version(0, 0, 1)
     }
 }
