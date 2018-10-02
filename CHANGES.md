@@ -3,6 +3,7 @@
 ## unreleased
 
 - allow patch updates in createTag for older releases
+- upgrade gradle to 4.10, older version won't work any more
 
 ## 2018-08-11 / 1.0.0
 

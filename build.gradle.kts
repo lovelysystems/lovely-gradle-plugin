@@ -16,8 +16,8 @@ version = "1.0.0"
 val pluginId = "com.lovelysystems.gradle"
 
 gradlePlugin {
-    (plugins) {
-        pluginId {
+    plugins {
+        register(pluginId) {
             id = pluginId
             implementationClass = "com.lovelysystems.gradle.LovelyGradlePlugin"
         }
@@ -38,8 +38,8 @@ publishing {
             name = "test"
         }
     }
-    (publications) {
-        "mavenJava"(MavenPublication::class) {
+    publications {
+        register("mavenJava", MavenPublication::class) {
             from(components["java"])
         }
     }
@@ -52,8 +52,8 @@ pluginBundle {
     description = "Gradle Plugins for Lovely Systems Projects"
     tags = listOf("git", "docker")
 
-    (plugins) {
-        pluginId {
+    plugins {
+        register(pluginId) {
             id = pluginId
             displayName = "Lovely Systems Project Helpers"
             description = "Gradle Plugin for Lovely Systems Projects"
