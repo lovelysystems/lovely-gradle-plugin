@@ -4,6 +4,7 @@
 
 - allow patch updates in createTag for older releases
 - upgrade gradle to 4.10, older version won't work any more
+- allow to push dev image even if the same build was pushed as release first
 
 ## 2018-08-11 / 1.0.0
 
