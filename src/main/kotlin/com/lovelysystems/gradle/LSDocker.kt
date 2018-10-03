@@ -80,7 +80,8 @@ fun Project.dockerProject(repository: String, files: CopySpec) {
                         errorOutput = eo
 
                     }
-                    if (e.exitValue == 0) {
+                    val shouldPushDev = project.gradle.taskGraph.hasTask(":pushDockerDevImage")
+                    if (e.exitValue == 0 && !shouldPushDev) {
                         throw RuntimeException("tag already exists $tag")
                     }
                 }
