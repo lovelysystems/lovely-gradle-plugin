@@ -1,6 +1,6 @@
 # Changes for Lovely Gradle Plugin
 
-## unreleased
+## 2018-10-04 / 1.1.0
 
 - allow patch updates in createTag for older releases
 - upgrade gradle to 4.10, older version won't work any more
