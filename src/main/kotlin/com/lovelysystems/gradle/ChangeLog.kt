@@ -3,13 +3,13 @@ package com.lovelysystems.gradle
 import java.io.File
 import java.text.SimpleDateFormat
 
-val CHANGELOG_NAMES = arrayListOf("CHANGES.md", "CHANGES.rst", "CHANGES.txt")
+val CHANGELOG_NAME_PATTERN = Regex("^CHANGE(S|LOG)\\.(md|rst|txt)$")
 val CHANGELOG_DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
 
 fun parseChangeLog(file: File): ChangeLog {
     val changeLogFile = if (file.isDirectory) {
-        file.listFiles { f -> CHANGELOG_NAMES.contains(f.name) }.firstOrNull()
-                ?: throw IllegalArgumentException("No changelog found, allowed names are $CHANGELOG_NAMES")
+        file.listFiles { f -> CHANGELOG_NAME_PATTERN.matchEntire(f.name) !== null }.firstOrNull()
+                ?: throw IllegalArgumentException("No changelog found, name must match this pattern: $CHANGELOG_NAME_PATTERN")
     } else {
         file
     }

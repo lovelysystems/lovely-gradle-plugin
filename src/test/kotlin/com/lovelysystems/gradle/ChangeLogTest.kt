@@ -11,7 +11,7 @@ import org.junit.runners.Parameterized
 import java.io.File
 
 val unreleasedLog = mapOf(
-    "rst" to """
+        "rst" to """
 =============================
 Changes for some cool project
 =============================
@@ -27,7 +27,7 @@ unreleased
  - initial version
 
 """,
-    "md" to """
+        "md" to """
 # Changes for some cool project
 
 ## unreleased
@@ -42,7 +42,7 @@ unreleased
 )
 
 val releasedLog = mapOf(
-    "rst" to """
+        "rst" to """
 =============================
 Changes for some cool project
 =============================
@@ -58,7 +58,7 @@ Changes for some cool project
  - initial version
 
 """,
-    "md" to """
+        "md" to """
 # Changes for some cool project
 
 ## 2018-01-15 / 0.0.2
@@ -72,7 +72,7 @@ Changes for some cool project
 )
 
 val releasedLogWithRevision = mapOf(
-    "rst" to """
+        "rst" to """
 =============================
 Changes for some cool project
 =============================
@@ -83,7 +83,7 @@ Changes for some cool project
  - the revision
 
 """,
-    "md" to """
+        "md" to """
 # Changes for some cool project
 
 ## 2018-01-15 / 0.0.2-10
@@ -92,8 +92,11 @@ Changes for some cool project
 """
 )
 
+val FILENAMES = listOf("CHANGES", "CHANGELOG")
+val EXTENSIONS = listOf("rst", "md", "txt")
+
 @RunWith(Parameterized::class)
-class ChangeLogTest(private val suffix: String) {
+class ChangeLogTest(private val filename: String) {
 
     @get:Rule
     val tmp = TemporaryFolder()
@@ -101,7 +104,8 @@ class ChangeLogTest(private val suffix: String) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters
-        fun data() = listOf("rst", "md", "txt")
+        fun data() = FILENAMES.map { name -> EXTENSIONS.map { extension -> "$name.$extension" } }.flatten()
+
     }
 
     private fun createChangeLog(contents: Map<String, String>): ChangeLog {
@@ -110,8 +114,11 @@ class ChangeLogTest(private val suffix: String) {
     }
 
     fun createChangeLogFile(contentMap: Map<String, String>): File {
-        val f = tmp.root.resolve("CHANGES.$suffix")
-        val content = when (suffix){
+        val f = tmp.root.resolve(filename)
+        println(f.name)
+        val suffix = filename.split(".").last()
+        println(suffix)
+        val content = when (suffix) {
             "txt" -> contentMap["rst"]!!
             else -> contentMap[suffix]!!
         }
