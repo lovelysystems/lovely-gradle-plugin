@@ -5,16 +5,15 @@ plugins {
 
 lovely {
     gitProject()
+    pythonProject("python3")
     dockerProject("hub.example.com/lovely/exampleproject")
+
+    with(dockerFiles) {
+        from(tasks["writeVersion"].outputs)
+    }
 }
 
-val createVersionFile by tasks.creating {
-    val f = file("VERSION.txt")
-    outputs.files(f)
-    f.writeText(version.toString())
-}
 
-lovely.dockerFiles.from(createVersionFile.outputs)
-tasks["prepareDockerImage"].dependsOn(createVersionFile)
+tasks["prepareDockerImage"].dependsOn("venv")
 
 defaultTasks("buildDockerImage")

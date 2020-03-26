@@ -16,6 +16,10 @@ open class LovelyPluginExtension(private val project: Project) {
         project.gitProject()
     }
 
+    fun pythonProject(pythonExecutable: String = "python3.8") {
+        project.pythonProject(pythonExecutable)
+    }
+
     val dockerFiles = project.copySpec()
 
     fun dockerProject(repository: String) {

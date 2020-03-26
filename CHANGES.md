@@ -1,5 +1,9 @@
 # Changes for Lovely Gradle Plugin
 
+## unreleased
+
+- added PythonProject
+
 ## 2019-01-03 / 1.2.0
 
 - upgrade to gradle 5.1
