@@ -1,6 +1,6 @@
 # Changes for Lovely Gradle Plugin
 
-## unreleased
+## 2020-03-26 / 1.3.0
 
 - added PythonProject
 
