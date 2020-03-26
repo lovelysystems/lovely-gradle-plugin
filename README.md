@@ -66,6 +66,18 @@ As for any docker repository the hostname of the registry is not required and de
   * `pushDockerImage` - Pushes the Docker image to the registry
   * `pushDockerDevImage` - Pushes the Docker image to the registry and tag it as `dev`
 
+## Python Project
+
+The Python project support ads an opinionated project setup for Python projects with the use of
+[pip-tools](https://github.com/jazzband/pip-tools). To enable it add the following
+to your `build.gradle.kts` file:
+
+```gradle
+lovely {
+  pythonProject()
+}
+```
+
 ## License
 
 This plugin is made available under the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0).
