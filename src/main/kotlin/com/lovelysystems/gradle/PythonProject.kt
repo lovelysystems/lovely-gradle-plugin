@@ -126,8 +126,13 @@ open class PyTestTask : DefaultTask() {
 
     @TaskAction
     fun run() {
+        val testRoot = if (project.projectDir.resolve("tests/pytest.ini").exists()) {
+            project.projectDir.resolve("tests")
+        } else {
+            project.projectDir
+        }
         project.exec {
-            commandLine(project.pythonSettings.binDir.resolve("pytest"), "-s", project.projectDir)
+            commandLine(project.pythonSettings.binDir.resolve("pytest"), "-s", testRoot)
         }
     }
 }

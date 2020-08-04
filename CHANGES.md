@@ -1,5 +1,9 @@
 # Changes for Lovely Gradle Plugin
 
+## 2020-08-04 / 1.3.1
+
+- detect `/tests` as pytest root if there is a `tests/pytests.ini` file.
+
 ## 2020-03-26 / 1.3.0
 
 - added PythonProject
