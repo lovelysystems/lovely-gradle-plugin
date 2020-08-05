@@ -1,5 +1,10 @@
 # Changes for Lovely Gradle Plugin
 
+## 2020-08-05 / 1.3.2
+
+- the `writeVersion` task now compares the contents of the VERSION.txt
+  file to ensure, that always the most recent version is used (e.g: by sdist)
+
 ## 2020-08-04 / 1.3.1
 
 - detect `/tests` as pytest root if there is a `tests/pytests.ini` file.

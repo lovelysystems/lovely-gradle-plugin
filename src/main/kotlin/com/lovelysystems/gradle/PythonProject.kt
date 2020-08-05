@@ -143,6 +143,10 @@ fun Project.pythonProject(pythonExecutable: String) {
     tasks.register("writeVersion") {
         val out = file("VERSION.txt")
         outputs.file(out)
+        // since we have no inputs, check if we need to run
+        outputs.upToDateWhen {
+            out.takeIf { it.exists() }?.readText() == project.version.toString()
+        }
         doLast {
             pythonSettings.versionFile.writeText(project.version.toString())
         }
