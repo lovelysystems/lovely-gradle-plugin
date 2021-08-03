@@ -2,7 +2,7 @@ package com.lovelysystems.gradle
 
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -122,7 +122,7 @@ class ChangeLogTest(private val suffix: String) {
     @Test
     fun testFindChangeLogFileViaDirectory() {
         val f = createChangeLogFile(unreleasedLog)
-        parseChangeLog(f.parentFile).file shouldEqual f
+        parseChangeLog(f.parentFile).file shouldBeEqualTo f
     }
 
     @Test
