@@ -1,13 +1,12 @@
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
-    `maven-publish`
-    kotlin("jvm") version "1.3.71"
-    id("com.gradle.plugin-publish") version "0.12.0"
+    kotlin("jvm") version "1.4.31"
+    id("com.gradle.plugin-publish") version "0.15.0"
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 group = "com.lovelysystems"
@@ -29,21 +28,7 @@ dependencies {
     testImplementation("junit:junit:4.12")
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit"))
-    testImplementation("org.amshove.kluent:kluent:1.35")
-}
-
-publishing {
-    repositories {
-        maven(url = buildDir.resolve("repository")) {
-            name = "test"
-        }
-    }
-    publications {
-        register("mavenJava", MavenPublication::class) {
-            from(components["java"])
-        }
-    }
-
+    testImplementation("org.amshove.kluent:kluent:1.68")
 }
 
 pluginBundle {

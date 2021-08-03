@@ -188,15 +188,15 @@ class LSGitTest {
         g.latestLocalGitTagPatchOfVersion() shouldBe null
 
         g.gitCmd("tag", "0.0.1")
-        g.latestLocalGitTagPatchOfVersion() shouldEqual Version(0, 0, 1)
+        g.latestLocalGitTagPatchOfVersion() shouldBeEqualTo Version(0, 0, 1)
 
         g.gitCmd("checkout", "-b", "release")
 
         g.gitCmd("checkout", "master")
         g.createVersionedFile("release.txt", tag = "0.1.0")
-        g.latestLocalGitTagPatchOfVersion() shouldEqual Version(0, 1, 0)
+        g.latestLocalGitTagPatchOfVersion() shouldBeEqualTo Version(0, 1, 0)
 
         g.gitCmd("checkout", "release")
-        g.latestLocalGitTagPatchOfVersion(Version(0, 0, 0)) shouldEqual Version(0, 0, 1)
+        g.latestLocalGitTagPatchOfVersion(Version(0, 0, 0)) shouldBeEqualTo Version(0, 0, 1)
     }
 }

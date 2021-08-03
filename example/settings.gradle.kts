@@ -1,7 +1,4 @@
-// use the local maven repository of the parent project
+// use the local build of the plugin
 pluginManagement {
-    repositories {
-        maven ("../build/repository")
-        gradlePluginPortal()
-    }
+    includeBuild("../")
 }
