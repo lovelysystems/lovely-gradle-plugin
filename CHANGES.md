@@ -1,5 +1,9 @@
 # Changes for Lovely Gradle Plugin
 
+## 2021-08-03 / 1.4.0
+
+- added the DockerCopy task, which allows to copy a file from a docker image
+
 ## 2020-08-05 / 1.3.2
 
 - the `writeVersion` task now compares the contents of the VERSION.txt
