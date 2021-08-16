@@ -47,9 +47,9 @@ open class VenvTask : DefaultTask() {
         project.exec {
             commandLine(
                 project.pythonSettings.pip, "install", "--upgrade",
-                "pip==19.3.1",
-                "setuptools==41.6.0",
-                "pip-tools==4.2.0"
+                "pip",
+                "setuptools",
+                "pip-tools==6.2.0"
             )
         }
     }

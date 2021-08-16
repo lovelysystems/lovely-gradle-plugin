@@ -1,5 +1,10 @@
 # Changes for Lovely Gradle Plugin
 
+## 2021-08-16 / 1.5.0
+
+- upgrade pip-tools to 6.2.0
+- do not nail pip and setuptools in python venv
+
 ## 2021-08-03 / 1.4.0
 
 - added the DockerCopy task, which allows to copy a file from a docker image
