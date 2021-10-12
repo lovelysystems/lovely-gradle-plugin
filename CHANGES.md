@@ -1,5 +1,9 @@
 # Changes for Lovely Gradle Plugin
 
+## 2021-10-12 / 1.5.1
+
+- nail pip to fix incompatibility with pip-tools
+
 ## 2021-08-16 / 1.5.0
 
 - upgrade pip-tools to 6.2.0
