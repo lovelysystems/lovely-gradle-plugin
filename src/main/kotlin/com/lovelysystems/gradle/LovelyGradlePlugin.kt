@@ -22,8 +22,8 @@ open class LovelyPluginExtension(private val project: Project) {
 
     val dockerFiles = project.copySpec()
 
-    fun dockerProject(repository: String) {
-        project.dockerProject(repository, dockerFiles)
+    fun dockerProject(repository: String, stages: List<String> = listOf("")) {
+        project.dockerProject(repository, dockerFiles, stages)
     }
 }
 
