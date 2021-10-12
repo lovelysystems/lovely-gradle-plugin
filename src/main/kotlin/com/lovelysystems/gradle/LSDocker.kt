@@ -110,7 +110,7 @@ fun Project.dockerProject(repository: String, files: CopySpec, stages: List<Stri
                     }
                     doLast {
                         exec {
-                            commandLine("echo", "docker", "push", tag)
+                            commandLine("docker", "push", tag)
                         }
                     }
 
@@ -127,7 +127,7 @@ fun Project.dockerProject(repository: String, files: CopySpec, stages: List<Stri
                 val devTag = dockerTag("dev", stage = stage)
                 doLast {
                     exec {
-                        commandLine("echo", "docker", "push", devTag)
+                        commandLine("docker", "push", devTag)
                     }
                 }
 
