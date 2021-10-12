@@ -1,5 +1,9 @@
 # Changes for Lovely Gradle Plugin
 
+## unreleased
+
+- allow to build, tag and push multiple stages from a single Dockerfile
+
 ## 2021-10-12 / 1.5.1
 
 - nail pip to fix incompatibility with pip-tools

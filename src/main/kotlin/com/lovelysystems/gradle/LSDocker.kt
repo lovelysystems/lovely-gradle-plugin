@@ -2,7 +2,6 @@ package com.lovelysystems.gradle
 
 import org.gradle.api.Project
 import org.gradle.api.file.CopySpec
-import org.gradle.api.tasks.Exec
 import org.gradle.api.tasks.Sync
 import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.getValue
@@ -18,22 +17,28 @@ private fun Project.validateVersion() {
     g.validateProductionTag(tag)
 }
 
-fun Project.dockerProject(repository: String, files: CopySpec) {
+fun Project.dockerProject(repository: String, files: CopySpec, stages: List<String>) {
 
     val dockerBuildDir = project.buildDir.resolve("docker")
 
-    fun Project.dockerTag(versionTag: String = version.toString()): String {
-        return "$repository:${versionTag}"
+    fun Project.dockerTag(versionTag: String = version.toString(), stage: String = ""): String {
+        if (stage.isEmpty()) {
+            return "$repository:${versionTag}"
+        } else {
+            return "$repository:${versionTag}-$stage"
+        }
     }
 
     tasks {
 
         @Suppress("UNUSED_VARIABLE")
         val printDockerTag by creating {
-            description = "Prints out the computed docker tag for this project"
+            description = "Prints out the computed docker tag(s) for this project"
             group = DOCKER_GROUP
             doLast {
-                println(dockerTag())
+                stages.forEach {
+                    println(dockerTag(stage = it))
+                }
             }
         }
 
@@ -50,50 +55,65 @@ fun Project.dockerProject(repository: String, files: CopySpec) {
             }
         }
 
-        val buildDockerImage by creating(Exec::class) {
+        val buildDockerImage by creating {
             dependsOn(prepareDockerImage)
             group = DOCKER_GROUP
             description = "Builds a docker image and tags it with version and dev"
             inputs.files(prepareDockerImage.outputs)
-            workingDir = dockerBuildDir
 
-            commandLine(
-                "docker", "build", ".",
-                "-t", project.dockerTag(),
-                "-t", project.dockerTag("dev")
-            )
+            doLast {
+                stages.forEach { stage ->
+                    logger.info("building docker image stage=$stage")
+                    exec {
+                        workingDir = dockerBuildDir
+                        commandLine(
+                            "docker", "build", ".",
+                            "-t", project.dockerTag(stage = stage),
+                            "-t", project.dockerTag("dev", stage = stage)
+                        )
+                        if (stage.isNotEmpty()) {
+                            args("--target", stage)
+                        }
+                    }
+                    logger.info("docker build finished for stage=$stage")
+                }
+            }
         }
 
         val pushDockerImage by creating {
             dependsOn(buildDockerImage)
             group = DOCKER_GROUP
             description = "Pushes the docker image to the registry"
-            val tag = dockerTag()
             inputs.files("Dockerfile")
-
-            if (!tag.endsWith(".dirty")) {
-                doFirst {
-                    val eo = ByteArrayOutputStream()
-                    val e = exec {
-                        isIgnoreExitValue = true
-                        commandLine("docker", "pull", tag)
-                        errorOutput = eo
-
-                    }
-                    val shouldPushDev = project.gradle.taskGraph.hasTask(":pushDockerDevImage")
-                    if (e.exitValue == 0 && !shouldPushDev) {
-                        throw RuntimeException("tag already exists $tag")
-                    }
-                }
-            }
+            val versionString = version.toString()
 
             doFirst {
                 validateVersion()
             }
 
-            doLast {
-                exec {
-                    commandLine("docker", "push", tag)
+
+            if (!versionString.endsWith(".dirty")) {
+                stages.forEach { stage ->
+                    val tag = dockerTag(stage = stage)
+                    doFirst {
+                        val eo = ByteArrayOutputStream()
+                        val e = exec {
+                            isIgnoreExitValue = true
+                            commandLine("docker", "pull", tag)
+                            errorOutput = eo
+
+                        }
+                        val shouldPushDev = project.gradle.taskGraph.hasTask(":pushDockerDevImage")
+                        if (e.exitValue == 0 && !shouldPushDev) {
+                            throw RuntimeException("tag already exists $tag")
+                        }
+                    }
+                    doLast {
+                        exec {
+                            commandLine("echo", "docker", "push", tag)
+                        }
+                    }
+
                 }
             }
         }
@@ -103,11 +123,14 @@ fun Project.dockerProject(repository: String, files: CopySpec) {
             dependsOn(pushDockerImage)
             group = DOCKER_GROUP
             description = "Pushes the docker image to the registry and tag it as dev"
-            val devTag = dockerTag("dev")
-            doLast {
-                exec {
-                    commandLine("docker", "push", devTag)
+            stages.forEach { stage ->
+                val devTag = dockerTag("dev", stage = stage)
+                doLast {
+                    exec {
+                        commandLine("echo", "docker", "push", devTag)
+                    }
                 }
+
             }
         }
     }

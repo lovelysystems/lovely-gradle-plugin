@@ -6,7 +6,9 @@ plugins {
 lovely {
     gitProject()
     pythonProject("python3")
-    dockerProject("hub.example.com/lovely/exampleproject")
+
+    // build the default stage "" and the "base" stage defined in the Dockerfile
+    dockerProject("hub.example.com/lovely/exampleproject", stages = listOf("", "base"))
 
     with(dockerFiles) {
         from(tasks["writeVersion"].outputs)
