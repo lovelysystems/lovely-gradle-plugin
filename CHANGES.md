@@ -1,6 +1,6 @@
 # Changes for Lovely Gradle Plugin
 
-## unreleased
+## 2021-10-12 / 1.6.0
 
 - allow to build, tag and push multiple stages from a single Dockerfile
 
