@@ -160,8 +160,8 @@ fun Project.pythonProject(pythonExecutable: String) {
         inputs.files(fileTree("src"), pythonSettings.setupFile, "MANIFEST.in")
         val out = buildDir.resolve("sdist")
         outputs.dir(out)
-        out.deleteRecursively()
         doLast {
+            out.deleteRecursively()
             exec {
                 commandLine(pythonSettings.python, pythonSettings.setupFile, "sdist", "--dist-dir", out)
             }

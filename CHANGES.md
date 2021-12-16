@@ -1,5 +1,9 @@
 # Changes for Lovely Gradle Plugin
 
+## 2021-12-16 / 1.6.2
+
+- fix: pythonProject: do not delete sdist build when not executed
+
 ## 2021-10-12 / 1.6.1
 
 - fix: re-enabled docker push, which was disabled for testing
