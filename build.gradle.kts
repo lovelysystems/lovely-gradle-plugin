@@ -10,7 +10,7 @@ repositories {
 }
 
 group = "com.lovelysystems"
-version = "1.6.2"
+version = "1.7.0"
 
 val pluginId = "com.lovelysystems.gradle"
 
