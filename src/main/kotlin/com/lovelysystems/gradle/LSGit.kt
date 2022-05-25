@@ -134,7 +134,7 @@ class LSGit(val dir: File) {
             "tag", "-a", "-m", "Release ${releaseInfo.second} from ${releaseInfo.first}",
             releaseInfo.second.toString()
         )
-        gitCmd("push", "--tags", "-q")
+        gitCmd("push", "--tags", "--no-verify", "-q")
         return releaseInfo
     }
 }

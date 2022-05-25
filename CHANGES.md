@@ -1,5 +1,9 @@
 # Changes for Lovely Gradle Plugin
 
+## 2022-05-25 / 1.7.0
+
+- do not verify on push of createTag
+
 ## 2021-12-16 / 1.6.2
 
 - fix: pythonProject: do not delete sdist build when not executed
