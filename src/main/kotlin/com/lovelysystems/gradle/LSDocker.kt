@@ -17,7 +17,7 @@ private fun Project.validateVersion() {
     g.validateProductionTag(tag)
 }
 
-fun Project.dockerProject(repository: String, files: CopySpec, stages: List<String>) {
+fun Project.dockerProject(repository: String, files: CopySpec, stages: List<String>, platforms: List<String>) {
 
     val dockerBuildDir = project.buildDir.resolve("docker")
 
@@ -30,6 +30,29 @@ fun Project.dockerProject(repository: String, files: CopySpec, stages: List<Stri
     }
 
     tasks {
+
+        val multiplatformBuilder = "lovely-docker-container-builder"
+
+        fun buildXCmd(vararg tags: String, push: Boolean = false): Array<String> {
+            val imageTags = tags.map { listOf("-t", it) }.flatten().toTypedArray()
+            val buildArgs = if (push) {
+                arrayOf(
+                    "--platform", platforms.joinToString(","),
+                    "--builder", multiplatformBuilder,
+                    "--push"
+                )
+            } else {
+                // local builds do not require a foreign target platform
+                // uses the default builder
+                arrayOf("--load")  // ensures build image is registered in local docker registry
+            }
+            return arrayOf(
+                "docker", "buildx",
+                "build", ".",
+                *imageTags,
+                *buildArgs,
+            )
+        }
 
         @Suppress("UNUSED_VARIABLE")
         val printDockerTag by creating {
@@ -55,6 +78,27 @@ fun Project.dockerProject(repository: String, files: CopySpec, stages: List<Stri
             }
         }
 
+        /**
+         * Bootstraps a new docker-container builder
+         */
+        @Suppress("UNUSED_VARIABLE")
+        val prepareDockerContainerBuilder by creating {
+            doLast {
+                exec {
+                    // The node will also automatically detect the platforms it supports
+                    commandLine(
+                        "docker", "buildx",
+                        "create",
+                        "--name", multiplatformBuilder,
+                        // Uses a BuildKit container that will be spawned via docker.
+                        // With this driver, both building multi-platform images and exporting cache are supported.
+                        "--driver", "docker-container",
+                        "--bootstrap"
+                    )
+                }
+            }
+        }
+
         val buildDockerImage by creating {
             dependsOn(prepareDockerImage)
             group = DOCKER_GROUP
@@ -65,12 +109,9 @@ fun Project.dockerProject(repository: String, files: CopySpec, stages: List<Stri
                 stages.forEach { stage ->
                     logger.info("building docker image stage=$stage")
                     exec {
+                        val cmd = buildXCmd(project.dockerTag(stage = stage), project.dockerTag("dev", stage))
                         workingDir = dockerBuildDir
-                        commandLine(
-                            "docker", "build", ".",
-                            "-t", project.dockerTag(stage = stage),
-                            "-t", project.dockerTag("dev", stage = stage)
-                        )
+                        commandLine(*cmd)
                         if (stage.isNotEmpty()) {
                             args("--target", stage)
                         }
@@ -110,7 +151,9 @@ fun Project.dockerProject(repository: String, files: CopySpec, stages: List<Stri
                     }
                     doLast {
                         exec {
-                            commandLine("docker", "push", tag)
+                            val cmd = buildXCmd(tag, push = true)
+                            workingDir = dockerBuildDir
+                            commandLine(*cmd)
                         }
                     }
 
@@ -127,7 +170,9 @@ fun Project.dockerProject(repository: String, files: CopySpec, stages: List<Stri
                 val devTag = dockerTag("dev", stage = stage)
                 doLast {
                     exec {
-                        commandLine("docker", "push", devTag)
+                        val cmd = buildXCmd(devTag, push = true)
+                        workingDir = dockerBuildDir
+                        commandLine(*cmd)
                     }
                 }
 
