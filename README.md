@@ -74,6 +74,26 @@ lovely {
 
 See the [example Project](./example/build.gradle.kts) to see stage builds in action.
 
+### Platforms
+
+By default, docker images are pushed for target platforms `linux/amd64` and `linux/arm64` (e.g. Apple M1).
+If not pushed, the image is build and loaded to the container registry for the platform only that runs the build.
+However, the target platforms can be configured by passing a list of
+supported [platform identifiers](https://docs.docker.com/engine/reference/commandline/buildx_build/#platform).
+
+```gradle
+lovely {
+  dockerProject("hub.example.com/lovely/exampleproject", platforms = listOf("linux/arm64", "linux/arm/v7"))
+}
+```
+
+The `buildDockerImage` task use [BuildKit](https://docs.docker.com/build/buildx/) in order to build
+Docker images for different target platforms. In order to run the following build tasks you need to create the
+docker-container builder on your host.
+
+> Note: Run `./gradlew prepareDockerContainerBuilder` or `./gradlew pDCB` in order to bootstrap the required
+> docker-container builder that supports the enhanced buildx features.
+
 ### Tasks
 
 * `printDockerTag` - Prints out the currently generated Docker tag

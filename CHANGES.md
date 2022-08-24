@@ -1,5 +1,11 @@
 # Changes for Lovely Gradle Plugin
 
+## Unreleased
+
+- Upgrade to gradle 7.5.1
+- Build docker images with BuildKit. (Requires Docker >= 18.09)
+- allow to customize target platforms of docker images.
+
 ## 2022-05-25 / 1.7.0
 
 - do not verify on push of createTag
