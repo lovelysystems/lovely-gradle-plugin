@@ -1,6 +1,6 @@
 # Changes for Lovely Gradle Plugin
 
-## Unreleased
+## 2022-08-24 / 1.8.0
 
 - Upgrade to gradle 7.5.1
 - Build docker images with BuildKit. (Requires Docker >= 18.09)
