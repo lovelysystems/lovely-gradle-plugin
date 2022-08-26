@@ -38,17 +38,17 @@ fun Project.dockerProject(repository: String, files: CopySpec, stages: List<Stri
             val buildArgs = if (push) {
                 arrayOf(
                     "--platform", platforms.joinToString(","),
-                    "--builder", multiplatformBuilder,
                     "--push"
                 )
             } else {
                 // local builds do not require a foreign target platform
-                // uses the default builder
                 arrayOf("--load")  // ensures build image is registered in local docker registry
             }
             return arrayOf(
                 "docker", "buildx",
                 "build", ".",
+                // always use the builder using the docker-container driver in order to access BuildKit features
+                "--builder", multiplatformBuilder,
                 *imageTags,
                 *buildArgs,
             )
