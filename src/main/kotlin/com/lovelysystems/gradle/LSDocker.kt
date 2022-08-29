@@ -17,15 +17,33 @@ private fun Project.validateVersion() {
     g.validateProductionTag(tag)
 }
 
-fun Project.dockerProject(repository: String, files: CopySpec, stages: List<String>, platforms: List<String>) {
+/**
+ * Holds the tasks and settings to build and push docker images with [BuildKit](https://docs.docker.com/develop/develop-images/build_enhancements/).
+ *
+ * @param repository: The docker repository name e.g. "hub.example.com/lovely/exampleproject"
+ * @param files: a specification for copied docker-files
+ * @param stages: to build multiple stages from a single Dockerfile
+ * @param platforms: the target platforms (system architecture) for the build
+ * @param buildPlatforms: the build platforms used for local docker build.
+ */
+fun Project.dockerProject(
+    repository: String,
+    files: CopySpec,
+    stages: List<String>,
+    platforms: List<String>,
+    buildPlatforms: List<String>
+) {
+    if (platforms.isEmpty()) {
+        error("List of platforms is empty.")
+    }
 
     val dockerBuildDir = project.buildDir.resolve("docker")
 
     fun Project.dockerTag(versionTag: String = version.toString(), stage: String = ""): String {
-        if (stage.isEmpty()) {
-            return "$repository:${versionTag}"
+        return if (stage.isEmpty()) {
+            "$repository:${versionTag}"
         } else {
-            return "$repository:${versionTag}-$stage"
+            "$repository:${versionTag}-$stage"
         }
     }
 
@@ -36,13 +54,24 @@ fun Project.dockerProject(repository: String, files: CopySpec, stages: List<Stri
         fun buildXCmd(vararg tags: String, push: Boolean = false): Array<String> {
             val imageTags = tags.map { listOf("-t", it) }.flatten().toTypedArray()
             val buildArgs = if (push) {
+                // pushes the build result to the remote docker registry
                 arrayOf(
                     "--platform", platforms.joinToString(","),
                     "--push"
                 )
             } else {
-                // local builds do not require a foreign target platform
-                arrayOf("--load")  // ensures build image is registered in local docker registry
+                // use the build platform setting for local build targets
+                // use the local system architecture if no build platform is specified
+                val platformArgs = if (buildPlatforms.isNotEmpty()) {
+                    arrayOf(
+                        "--platform", buildPlatforms.joinToString(",")
+                    )
+                } else {
+                    emptyArray()
+                }
+
+                // ensure build images are loaded to the local container registry
+                arrayOf("--load", *platformArgs)
             }
             return arrayOf(
                 "docker", "buildx",
