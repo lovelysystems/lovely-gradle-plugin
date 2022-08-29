@@ -1,6 +1,6 @@
 # Changes for Lovely Gradle Plugin
 
-## Unreleased
+## 2022-08-29 / 1.8.1
 
 - fix: Prefer the usage of the custom docker-container builder for local builds
   in order to utilize BuildKit features.
