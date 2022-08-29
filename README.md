@@ -80,10 +80,16 @@ By default, docker images are pushed for target platforms `linux/amd64` and `lin
 If not pushed, the image is build and loaded to the container registry for the platform only that runs the build.
 However, the target platforms can be configured by passing a list of
 supported [platform identifiers](https://docs.docker.com/engine/reference/commandline/buildx_build/#platform).
+In case there are build platforms set, the local docker builds the image for these platforms. Otherwise the
+local system architecture is used as build platform.
 
 ```gradle
 lovely {
-  dockerProject("hub.example.com/lovely/exampleproject", platforms = listOf("linux/arm64", "linux/arm/v7"))
+  dockerProject(
+    "hub.example.com/lovely/exampleproject", 
+    platforms = listOf("linux/arm64", "linux/arm/v7"),
+    buildPlatforms = listOf("linux/amd64")
+  )
 }
 ```
 

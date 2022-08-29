@@ -25,9 +25,10 @@ open class LovelyPluginExtension(private val project: Project) {
     fun dockerProject(
         repository: String,
         stages: List<String> = listOf(""),
-        platforms: List<String> = listOf("linux/amd64", "linux/arm64")
+        platforms: List<String> = listOf("linux/amd64", "linux/arm64"),
+        buildPlatforms: List<String> = emptyList()
     ) {
-        project.dockerProject(repository, dockerFiles, stages, platforms)
+        project.dockerProject(repository, dockerFiles, stages, platforms, buildPlatforms)
     }
 }
 
