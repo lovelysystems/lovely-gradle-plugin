@@ -1,6 +1,6 @@
 # Changes for Lovely Gradle Plugin
 
-## Unreleased
+## 2022-08-29 / 1.9.0
 
 - allow to specify build platforms for local docker builds.
 
