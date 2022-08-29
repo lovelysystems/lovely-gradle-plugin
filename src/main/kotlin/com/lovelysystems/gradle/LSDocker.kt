@@ -122,7 +122,6 @@ fun Project.dockerProject(
                         // Uses a BuildKit container that will be spawned via docker.
                         // With this driver, both building multi-platform images and exporting cache are supported.
                         "--driver", "docker-container",
-                        "--bootstrap"
                     )
                 }
             }

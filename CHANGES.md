@@ -1,5 +1,10 @@
 # Changes for Lovely Gradle Plugin
 
+## Unreleased
+
+- fix: avoid bootstrap of custom docker-container builder since this is not supported in
+  older docker versions.
+
 ## 2022-08-29 / 1.9.0
 
 - allow to specify build platforms for local docker builds.
