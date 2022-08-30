@@ -17,7 +17,7 @@
 ## 2022-08-24 / 1.8.0
 
 - Upgrade to gradle 7.5.1
-- Build docker images with BuildKit. (Requires Docker >= 18.09)
+- Build docker images with BuildKit. (Requires Docker >= 20.10.1)
 - allow to customize target platforms of docker images.
 
 ## 2022-05-25 / 1.7.0

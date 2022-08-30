@@ -50,6 +50,8 @@ for `createTag` to operate:
 
 ## Docker Project
 
+> INFO: Requires Docker >= 20.10.1 with buildx >= v0.5.0
+
 This functionality is enabled by defining the docker repository for the project in the
 `build.gradle.kts` file like this::
 
