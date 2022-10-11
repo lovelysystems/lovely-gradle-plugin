@@ -89,7 +89,7 @@ local system architecture is used as build platform.
 lovely {
   dockerProject(
     "hub.example.com/lovely/exampleproject", 
-    platforms = listOf("linux/arm64", "linux/arm/v7"),
+    platforms = listOf("linux/amd64", "linux/arm/v7"),
     buildPlatforms = listOf("linux/amd64")
   )
 }
