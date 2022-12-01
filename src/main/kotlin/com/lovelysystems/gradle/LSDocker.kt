@@ -112,6 +112,8 @@ fun Project.dockerProject(
          */
         @Suppress("UNUSED_VARIABLE")
         val prepareDockerContainerBuilder by creating {
+            description = "Bootstraps a new docker-container builder"
+            group = DOCKER_GROUP
             doLast {
                 exec {
                     // The node will also automatically detect the platforms it supports

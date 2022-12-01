@@ -1,5 +1,9 @@
 # Changes for Lovely Gradle Plugin
 
+## 2022-12-01 / 1.9.2
+
+- fix: make `prepareDockerContainerBuilder` visible under gradle tasks
+
 ## 2022-08-29 / 1.9.1
 
 - fix: avoid bootstrap of custom docker-container builder since this is not supported in

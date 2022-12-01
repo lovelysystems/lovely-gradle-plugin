@@ -8,7 +8,7 @@ This repository provides a Gradle plugin used by Lovely Systems Projects. It is 
 
 The newest version of this plugin can be found on
 the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.lovelysystems.gradle)
-and can be applied to your project by adding it to the plugins section of your `build.gradl.kts`
+and can be applied to your project by adding it to the plugins section of your `build.gradle.kts`
 file like this:
 
 ```
@@ -62,7 +62,7 @@ lovely {
 ```
 
 As for any docker repository the hostname of the registry is not required and defaults
-to ``docker.io``
+to `docker.io`
 
 Optionally a list of stages to build can be supplied to build multiple stages from a single
 Dockerfile. The default is to just build the default stage, which is actually an empty string, so
@@ -105,6 +105,7 @@ docker-container builder on your host.
 ### Tasks
 
 * `printDockerTag` - Prints out the currently generated Docker tag
+* `prepareDockerContainerBuilder` - Bootstraps a new docker-container builder
 * `prepareDockerImage` - Prepares all files required for a Docker build
 * `buildDockerImage` - Builds a Docker image and tags it with current version and dev
 * `pushDockerImage` - Pushes the Docker image to the registry
