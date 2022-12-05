@@ -5,10 +5,12 @@ package com.lovelysystems.gradle
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.TaskAction
-import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.invoke
+import org.gradle.kotlin.dsl.provideDelegate
+import org.gradle.kotlin.dsl.registering
 
 open class LovelyPluginExtension(private val project: Project) {
 
@@ -20,15 +22,14 @@ open class LovelyPluginExtension(private val project: Project) {
         project.pythonProject(pythonExecutable)
     }
 
-    val dockerFiles = project.copySpec()
-
     fun dockerProject(
         repository: String,
         stages: List<String> = listOf(""),
         platforms: List<String> = listOf("linux/amd64", "linux/arm64"),
-        buildPlatforms: List<String> = emptyList()
+        buildPlatforms: List<String> = emptyList(),
+        dockerFiles: Sync.() -> Unit = {}
     ) {
-        project.dockerProject(repository, dockerFiles, stages, platforms, buildPlatforms)
+        project.dockerProject(repository, stages, platforms, buildPlatforms, dockerFiles)
     }
 }
 
@@ -60,19 +61,19 @@ fun Project.gitProject() {
     project.version = g.describe()
 
     tasks {
-        val printVersion by creating {
+        val printVersion by registering {
             group = GIT_GROUP
             description = "Prints the current version of the Project to stdout"
             doLast { println(project.version) }
         }
 
-        val printChangeLogVersion by creating {
+        val printChangeLogVersion by registering {
             group = GIT_GROUP
             description = "Parses the changes file and prints out the latest defined version"
             doLast { println(g.parseChangeLog().latestVersion() ?: "unreleased") }
         }
 
-        val createTag by creating(CreateTagTask::class) {
+        val createTag by registering(CreateTagTask::class) {
         }
 
     }

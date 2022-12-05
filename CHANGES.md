@@ -1,8 +1,25 @@
 # Changes for Lovely Gradle Plugin
 
-## 2022-12-01 / 1.9.2
+## unreleased
 
 - fix: make `prepareDockerContainerBuilder` visible under gradle tasks
+- make all tasks lazy by switching to `tasks.register` instead of `tasks.create` (https://docs.gradle.org/current/userguide/task_configuration_avoidance.html)
+- remove `dockerFiles` setting from `LovelyPluginExtension` to avoid initialization errors due to eager loading. instead use the added closure on the `dockerProject` function (see below)
+
+```kotlin
+lovely {
+  // before
+  dockerProject("<organization/image>")
+  with(dockerFiles) {
+    from("docker")
+  }
+  
+  // now
+  dockerProject("<organization/image>") {
+    from("docker")
+  }
+}
+```
 
 ## 2022-08-29 / 1.9.1
 
