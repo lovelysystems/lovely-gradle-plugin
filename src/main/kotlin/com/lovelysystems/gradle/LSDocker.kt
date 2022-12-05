@@ -1,11 +1,8 @@
 package com.lovelysystems.gradle
 
 import org.gradle.api.Project
-import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.Sync
-import org.gradle.kotlin.dsl.creating
-import org.gradle.kotlin.dsl.getValue
-import org.gradle.kotlin.dsl.invoke
+import org.gradle.kotlin.dsl.*
 import java.io.ByteArrayOutputStream
 
 const val DOCKER_GROUP = "Docker"
@@ -21,17 +18,17 @@ private fun Project.validateVersion() {
  * Holds the tasks and settings to build and push docker images with [BuildKit](https://docs.docker.com/develop/develop-images/build_enhancements/).
  *
  * @param repository: The docker repository name e.g. "hub.example.com/lovely/exampleproject"
- * @param files: a specification for copied docker-files
  * @param stages: to build multiple stages from a single Dockerfile
  * @param platforms: the target platforms (system architecture) for the build
  * @param buildPlatforms: the build platforms used for local docker build.
+ * @param dockerFiles: a specification for copied docker-files
  */
 fun Project.dockerProject(
     repository: String,
-    files: CopySpec,
     stages: List<String>,
     platforms: List<String>,
-    buildPlatforms: List<String>
+    buildPlatforms: List<String>,
+    dockerFiles: Sync.() -> Unit
 ) {
     if (platforms.isEmpty()) {
         error("List of platforms is empty.")
@@ -84,7 +81,7 @@ fun Project.dockerProject(
         }
 
         @Suppress("UNUSED_VARIABLE")
-        val printDockerTag by creating {
+        val printDockerTag by registering {
             description = "Prints out the computed docker tag(s) for this project"
             group = DOCKER_GROUP
             doLast {
@@ -94,24 +91,19 @@ fun Project.dockerProject(
             }
         }
 
-        val prepareDockerImage by creating(Sync::class) {
+        val prepareDockerImage by registering(Sync::class) {
             description = "Prepares all files required for a Docker build"
             group = DOCKER_GROUP
             destinationDir = dockerBuildDir
-        }
-
-        afterEvaluate {
-            with(prepareDockerImage) {
-                with(files)
-                from(file("Dockerfile"))
-            }
+            from(file("Dockerfile")) // by default take "Dockerfile" from root
+            dockerFiles()
         }
 
         /**
          * Bootstraps a new docker-container builder
          */
         @Suppress("UNUSED_VARIABLE")
-        val prepareDockerContainerBuilder by creating {
+        val prepareDockerContainerBuilder by registering {
             description = "Bootstraps a new docker-container builder"
             group = DOCKER_GROUP
             doLast {
@@ -129,11 +121,11 @@ fun Project.dockerProject(
             }
         }
 
-        val buildDockerImage by creating {
+        val buildDockerImage by registering {
             dependsOn(prepareDockerImage)
             group = DOCKER_GROUP
             description = "Builds a docker image and tags it with version and dev"
-            inputs.files(prepareDockerImage.outputs)
+            inputs.files(prepareDockerImage.get().outputs)
 
             doLast {
                 stages.forEach { stage ->
@@ -151,7 +143,7 @@ fun Project.dockerProject(
             }
         }
 
-        val pushDockerImage by creating {
+        val pushDockerImage by registering {
             dependsOn(buildDockerImage)
             group = DOCKER_GROUP
             description = "Pushes the docker image to the registry"
@@ -192,7 +184,7 @@ fun Project.dockerProject(
         }
 
         @Suppress("UNUSED_VARIABLE")
-        val pushDockerDevImage by creating {
+        val pushDockerDevImage by registering {
             dependsOn(pushDockerImage)
             group = DOCKER_GROUP
             description = "Pushes the docker image to the registry and tag it as dev"

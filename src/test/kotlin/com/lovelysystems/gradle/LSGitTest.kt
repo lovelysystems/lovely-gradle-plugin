@@ -77,7 +77,7 @@ class LSGitTest {
                 "The current HEAD is not in sync with any valid remote branch, it points to [origin/my-work-branch]"
 
 
-        downstream.gitCmd("push", "--set-upstream", "origin", "master")
+        downstream.gitCmd("push", "--set-upstream", "origin", "main")
         downstream.validateHeadIsOnValidRemoteBranch()
 
 
@@ -117,13 +117,13 @@ class LSGitTest {
         func = { downstream.createVersionTag() }
         func shouldThrow RuntimeException::class withMessage "Current HEAD does not point to any remote branches"
 
-        downstream.gitCmd("push", "--set-upstream", "origin", "master")
+        downstream.gitCmd("push", "--set-upstream", "origin", "main")
 
         func = { downstream.createVersionTag() }
         func shouldThrow RuntimeException::class withMessage "Version number superseded: 0.0.2 >= 0.0.2"
 
         downstream.gitCmd("checkout", "-b", "release/0.0.0")
-        downstream.gitCmd("checkout", "master")
+        downstream.gitCmd("checkout", "main")
 
         downstream.createVersionedFile("newRealease.txt", tag = "0.1.0")
 
@@ -192,7 +192,7 @@ class LSGitTest {
 
         g.gitCmd("checkout", "-b", "release")
 
-        g.gitCmd("checkout", "master")
+        g.gitCmd("checkout", "main")
         g.createVersionedFile("release.txt", tag = "0.1.0")
         g.latestLocalGitTagPatchOfVersion() shouldBeEqualTo Version(0, 1, 0)
 
