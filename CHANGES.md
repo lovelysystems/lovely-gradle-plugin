@@ -1,5 +1,9 @@
 # Changes for Lovely Gradle Plugin
 
+## Unreleased
+
+- updated Gradle (7.5.1 -> 7.6), Kotlin (1.4.31 -> 1.7.10) and other dependencies in the project
+
 ## 2022-12-06 / 1.10.0
 
 - make all tasks lazy by switching to `tasks.register` instead of `tasks.create` (https://docs.gradle.org/current/userguide/task_configuration_avoidance.html)
