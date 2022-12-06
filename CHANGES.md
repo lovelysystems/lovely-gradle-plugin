@@ -1,6 +1,6 @@
 # Changes for Lovely Gradle Plugin
 
-## unreleased
+## 2022-12-06 / 1.10.0
 
 - make all tasks lazy by switching to `tasks.register` instead of `tasks.create` (https://docs.gradle.org/current/userguide/task_configuration_avoidance.html)
 
