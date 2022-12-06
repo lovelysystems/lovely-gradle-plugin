@@ -24,7 +24,7 @@ fun createSampleRepos(tmp: TemporaryFolder): Pair<LSGit, LSGit> {
     val downstreamPath = tmp.newFolder("downstream")
 
     val upstream = LSGit(upstreamPath)
-    upstream.gitCmd("init")
+    upstream.gitCmd("init", "--initial-branch=main")
     upstream.gitCmd("config", "receive.denyCurrentBranch", "warn")
     upstream.createVersionedFile("CHANGES.md", content = releasedLog["md"])
     upstream.gitCmd("tag", "-a", "0.0.1", "-m", "release tag from upstream")

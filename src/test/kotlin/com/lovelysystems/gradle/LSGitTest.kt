@@ -179,7 +179,7 @@ class LSGitTest {
     @Test
     fun testLatestLocalGitTagPatchOfVersion() {
         val g = LSGit(tmp.root)
-        g.gitCmd("init")
+        g.gitCmd("init", "--initial-branch=main")
         g.latestLocalGitTagPatchOfVersion() shouldBe null
         tmp.root.resolve("some.txt").writeText("content")
         g.gitCmd("add", ".")
