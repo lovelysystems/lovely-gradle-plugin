@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- nail setuptools < 66.0.0 for Python projects
 - updated Gradle (7.5.1 -> 7.6), Kotlin (1.4.31 -> 1.7.10) and other dependencies in the project
 
 ## 2022-12-06 / 1.10.0

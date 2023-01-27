@@ -48,7 +48,7 @@ open class VenvTask : DefaultTask() {
             commandLine(
                 project.pythonSettings.pip, "install", "--upgrade",
                 "pip<=21.2.4",  // nailed because of pip-tools bug see https://github.com/jazzband/pip-tools/issues/1503
-                "setuptools",
+                "setuptools<66.0.0",  // nailed because of https://github.com/pypa/setuptools/issues/3772
                 "pip-tools==6.2.0"
             )
         }
