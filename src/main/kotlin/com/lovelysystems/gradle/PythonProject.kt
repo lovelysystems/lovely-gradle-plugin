@@ -150,7 +150,7 @@ open class PyTestTask : DefaultTask() {
  */
 fun pep440Version(versionString: String): String {
     val defaultVersion = "0.0"
-    val r = Regex("^(?<public>\\d+(?>\\.\\d+)+(?>.(?>a|b|rc|dev|post)\\d*)?(?=-|\$))?-?(?<local>[\\w-]*(?>.dirty)?)\$")
+    val r = Regex("^(?<public>\\d+(?>\\.\\d+)+(?=-|\$))?-?(?<local>[\\w-]*(?>.dirty)?)\$")
     val match = r.matchEntire(versionString)
 
     return if (match != null) {

@@ -20,15 +20,11 @@ class PythonProjectTest {
         // unlimited release segments
         pep440Version("1.234.5.6-4-757ea77.dirty") shouldBeEqualTo "1.234.5.6+4-757ea77.dirty"
         pep440Version("123.4.55.6-4-757ea77.dirty") shouldBeEqualTo "123.4.55.6+4-757ea77.dirty"
-        // proper pep440 version not converted
-        pep440Version("1.2.3.dev0") shouldBeEqualTo "1.2.3.dev0"
-        pep440Version("1.2.3.a1") shouldBeEqualTo "1.2.3.a1"
-        pep440Version("1.2.3.b20") shouldBeEqualTo "1.2.3.b20"
-        pep440Version("1.2.3.rc40") shouldBeEqualTo "1.2.3.rc40"
-        pep440Version("1.2.3.post5") shouldBeEqualTo "1.2.3.post5"
 
         // if version can't be parsed - simply return it
         pep440Version("a0.63.1-8-g9e7b2ab.dirty") shouldBeEqualTo "a0.63.1-8-g9e7b2ab.dirty"
+        // also proper version numbers (though not created by this plugin) are not converted
+        pep440Version("1.2.3.rc40") shouldBeEqualTo "1.2.3.rc40"
     }
 
 }
