@@ -137,18 +137,50 @@ open class PyTestTask : DefaultTask() {
     }
 }
 
+/**
+ * turn the version string provided by task `printVersion`
+ * into a [PEP440](https://peps.python.org/pep-0440) compatible version
+ * so setuptools does not fail on dev releases.
+ *
+ * this is done by adding the additional information provided by `git describe`
+ * (git-hash, count of additional commits, dirty)
+ * as local version identifier (separated by `+`)
+ *
+ * if there is no public release number yet, `0.0` is assumed
+ */
+fun pep440Version(versionString: String): String {
+    val defaultVersion = "0.0"
+    val r = Regex("^(?<public>\\d(?>\\.\\d)*(?>.(?>a|b|rc|dev|post)\\d*)?)?-?(?<local>[\\w-]*(?>.dirty)?)\$")
+    val match = r.matchEntire(versionString)
+
+    return if (match != null) {
+        val groups = match.groups as MatchNamedGroupCollection
+        val public = groups["public"]?.value ?: defaultVersion
+        val local = groups["local"]?.value
+        if (local != "") {
+            "$public+$local"
+        } else {
+            public
+        }
+    } else {
+        // in case of no matches, return versionString
+        versionString
+    }
+}
+
 fun Project.pythonProject(pythonExecutable: String) {
     project.extensions.create<PythonSettings>("python", project, pythonExecutable)
 
     tasks.register("writeVersion") {
         val out = file("VERSION.txt")
         outputs.file(out)
+        val versionString = pep440Version(project.version.toString())
         // since we have no inputs, check if we need to run
         outputs.upToDateWhen {
-            out.takeIf { it.exists() }?.readText() == project.version.toString()
+            out.takeIf { it.exists() }?.readText() == versionString
         }
         doLast {
-            pythonSettings.versionFile.writeText(project.version.toString())
+            pythonSettings.versionFile.writeText(versionString)
         }
     }
 
