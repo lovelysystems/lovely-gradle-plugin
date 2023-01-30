@@ -1,8 +1,13 @@
 # Changes for Lovely Gradle Plugin
 
+## Unreleased
+
+- pythonProject: use latest pip-tools and remove pins for setuptools and pip 
+- setuptools compatibility: convert git describe output to pep440 compatible version
+
 ## 2023-01-30 / 1.11.0
 
-- nail setuptools < 66.0.0 for Python projects see ttps://github.com/pypa/setuptools/issues/3772
+- nail setuptools < 66.0.0 for Python projects see https://github.com/pypa/setuptools/issues/3772
 - updated Gradle (7.5.1 -> 7.6), Kotlin (1.4.31 -> 1.7.10) and other dependencies in the project
 
 ## 2022-12-06 / 1.10.0

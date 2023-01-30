@@ -47,9 +47,9 @@ open class VenvTask : DefaultTask() {
         project.exec {
             commandLine(
                 project.pythonSettings.pip, "install", "--upgrade",
-                "pip<=21.2.4",  // nailed because of pip-tools bug see https://github.com/jazzband/pip-tools/issues/1503
-                "setuptools<66.0.0",  // nailed because of https://github.com/pypa/setuptools/issues/3772
-                "pip-tools==6.2.0"
+                "pip",
+                "setuptools",
+                "pip-tools==6.12.1"
             )
         }
     }
@@ -137,18 +137,52 @@ open class PyTestTask : DefaultTask() {
     }
 }
 
+val versionRegex = Regex("^(?<public>\\d+(?>\\.\\d+)+(?=-|\$))?-?(?<local>[\\w-]*(?>.dirty)?)\$")
+
+/**
+ * turn the version string provided by task `printVersion`
+ * into a [PEP440](https://peps.python.org/pep-0440) compatible version
+ * so setuptools does not fail on dev releases.
+ *
+ * this is done by adding the additional information provided by `git describe`
+ * (git-hash, count of additional commits, dirty)
+ * as local version identifier (separated by `+`)
+ *
+ * if there is no public release number yet, `0.0` is assumed
+ */
+fun pep440Version(versionString: String): String {
+    val defaultVersion = "0.0"
+    val match = versionRegex.matchEntire(versionString)
+
+    return if (match != null) {
+        val groups = match.groups as MatchNamedGroupCollection
+        val public = groups["public"]?.value ?: defaultVersion
+        val local = groups["local"]?.value
+        if (local != "") {
+            // pep440 local version only supports alphanumeric values and dots
+            """$public+${local?.replace("-", ".")}"""
+        } else {
+            public
+        }
+    } else {
+        // in case of no matches, return versionString
+        versionString
+    }
+}
+
 fun Project.pythonProject(pythonExecutable: String) {
     project.extensions.create<PythonSettings>("python", project, pythonExecutable)
 
     tasks.register("writeVersion") {
         val out = file("VERSION.txt")
         outputs.file(out)
+        val versionString = pep440Version(project.version.toString())
         // since we have no inputs, check if we need to run
         outputs.upToDateWhen {
-            out.takeIf { it.exists() }?.readText() == project.version.toString()
+            out.takeIf { it.exists() }?.readText() == versionString
         }
         doLast {
-            pythonSettings.versionFile.writeText(project.version.toString())
+            pythonSettings.versionFile.writeText(versionString)
         }
     }
 
