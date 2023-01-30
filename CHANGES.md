@@ -1,6 +1,8 @@
 # Changes for Lovely Gradle Plugin
 
-## Unreleased
+## 2023-01-30 / 1.11.1
+
+### Fixes
 
 - pythonProject: use latest pip-tools and remove pins for setuptools and pip 
 - setuptools compatibility: convert git describe output to pep440 compatible version
