@@ -18,7 +18,8 @@ class PythonProjectTest {
         // release with additional commits and dirty state
         pep440Version("1.2-2-757ea77.dirty") shouldBeEqualTo "1.2+2-757ea77.dirty"
         // unlimited release segments
-        pep440Version("1.2.3.4.5-4-757ea77.dirty") shouldBeEqualTo "1.2.3.4.5+4-757ea77.dirty"
+        pep440Version("1.234.5.6-4-757ea77.dirty") shouldBeEqualTo "1.234.5.6+4-757ea77.dirty"
+        pep440Version("123.4.55.6-4-757ea77.dirty") shouldBeEqualTo "123.4.55.6+4-757ea77.dirty"
         // proper pep440 version not converted
         pep440Version("1.2.3.dev0") shouldBeEqualTo "1.2.3.dev0"
         pep440Version("1.2.3.a1") shouldBeEqualTo "1.2.3.a1"
@@ -27,7 +28,7 @@ class PythonProjectTest {
         pep440Version("1.2.3.post5") shouldBeEqualTo "1.2.3.post5"
 
         // if version can't be parsed - simply return it
-        pep440Version("unsupported.version") shouldBeEqualTo "unsupported.version"
+        pep440Version("a0.63.1-8-g9e7b2ab.dirty") shouldBeEqualTo "a0.63.1-8-g9e7b2ab.dirty"
     }
 
 }
