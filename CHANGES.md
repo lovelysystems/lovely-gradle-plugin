@@ -1,5 +1,9 @@
 # Changes for Lovely Gradle Plugin
 
+## Unreleased
+
+- Integrate with CircleCI and remove travis
+
 ## 2023-01-30 / 1.11.1
 
 ### Fixes
