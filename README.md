@@ -1,6 +1,6 @@
 # Lovely Gradle Plugin
 
-[![Build Status](https://app.travis-ci.com/lovelysystems/lovely-gradle-plugin.svg?branch=master)](https://app.travis-ci.com/github/lovelysystems/lovely-gradle-plugin)
+[![CircleCI Build Status](https://dl.circleci.com/status-badge/img/gh/lovelysystems/lovely-gradle-plugin/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/lovelysystems/lovely-gradle-plugin/tree/master)
 [![Gradle Plugin](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/lovelysystems/gradle/com.lovelysystems.gradle.gradle.plugin/maven-metadata.xml.svg?label=gradle-plugin)](https://plugins.gradle.org/plugin/com.lovelysystems.gradle)
 
 This repository provides a Gradle plugin used by Lovely Systems Projects. It is only tested with the
