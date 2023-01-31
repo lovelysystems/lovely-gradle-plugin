@@ -1,9 +1,23 @@
 version: 2.1
 
-orbs:
-  gradle: circleci/gradle@3.0.0
+jobs:
+  test:
+    # machine is required, docker does not work because of testcontainers
+    # see https://www.testcontainers.org/supported_docker_environment/
+    machine:
+      image: ubuntu-2204:2022.10.2
+    environment:
+      TZ: Europe/Zurich
+    steps:
+      - checkout
+      - run:
+          name: Bootstrap Gradle
+          command: ./gradlew --version
+      - run:
+          name: Check
+          command: ./gradlew --console=plain test
 
 workflows:
-  checkout-build-test:
+  test:
     jobs:
-      - gradle/test
+      - test
