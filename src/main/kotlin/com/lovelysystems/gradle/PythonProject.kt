@@ -137,7 +137,7 @@ open class PyTestTask : DefaultTask() {
     }
 }
 
-val versionRegex = Regex("^(?<public>\\d+(?>\\.\\d+)+(?=-|\$))?-?(?<local>[\\w-]*(?>.dirty)?)\$")
+val versionRegex = Regex("^(?<public>\\d+(?>\\.\\d+)+(?=-|[\\.dirty]+$))?-?(?<local>[\\w-]*(?>.dirty)?)\$")
 
 /**
  * turn the version string provided by task `printVersion`
@@ -160,7 +160,7 @@ fun pep440Version(versionString: String): String {
         val local = groups["local"]?.value
         if (local != "") {
             // pep440 local version only supports alphanumeric values and dots
-            """$public+${local?.replace("-", ".")}"""
+            """$public+${local?.replace("-", ".")?.trim('.')}"""
         } else {
             public
         }

@@ -13,6 +13,8 @@ class PythonProjectTest {
         pep440Version("757ea77.dirty") shouldBeEqualTo "0.0+757ea77.dirty"
         // proper release
         pep440Version("1.2") shouldBeEqualTo "1.2"
+        // proper release with dirty changes
+        pep440Version("0.64.0.dirty") shouldBeEqualTo "0.64.0+dirty"
         // release with additional commits
         pep440Version("1.2-2-757ea77") shouldBeEqualTo "1.2+2.757ea77"
         // release with additional commits and dirty state
