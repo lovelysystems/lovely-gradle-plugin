@@ -1,5 +1,12 @@
 # Changes for Lovely Gradle Plugin
 
+## 2023-02-01 / 1.11.4
+
+### Fixes
+
+- use pip-tools version 6.13.0 to work with pip >= 23.1
+  (https://pyup.io/packages/pypi/pip-tools/changelog?page=1&#6.13.0)
+
 ## 2023-02-01 / 1.11.3
 
 ### Fixes
@@ -14,7 +21,7 @@
 
 ### Fixes
 
-- pythonProject: use latest pip-tools and remove pins for setuptools and pip 
+- pythonProject: use latest pip-tools and remove pins for setuptools and pip
 - setuptools compatibility: convert git describe output to pep440 compatible version
 
 ## 2023-01-30 / 1.11.0

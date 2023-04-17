@@ -49,7 +49,7 @@ open class VenvTask : DefaultTask() {
                 project.pythonSettings.pip, "install", "--upgrade",
                 "pip",
                 "setuptools",
-                "pip-tools==6.12.1"
+                "pip-tools==6.13.0"
             )
         }
     }
