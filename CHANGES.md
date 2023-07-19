@@ -1,5 +1,12 @@
 # Changes for Lovely Gradle Plugin
 
+## Unreleased
+
+### Fixes
+
+- use pip-tools version 7.1.0 to solve issue with DEV_PKGS
+  (https://pyup.io/packages/pypi/pip-tools/changelog?page=1&#7.0.0)
+
 ## 2023-02-01 / 1.11.4
 
 ### Fixes
