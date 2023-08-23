@@ -2,7 +2,10 @@ package com.lovelysystems.gradle
 
 import org.gradle.api.Project
 import org.gradle.api.tasks.Sync
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.getValue
+import org.gradle.kotlin.dsl.invoke
+import org.gradle.kotlin.dsl.provideDelegate
+import org.gradle.kotlin.dsl.registering
 import java.io.ByteArrayOutputStream
 
 const val DOCKER_GROUP = "Docker"
@@ -28,13 +31,13 @@ fun Project.dockerProject(
     stages: List<String>,
     platforms: List<String>,
     buildPlatforms: List<String>,
-    dockerFiles: Sync.() -> Unit
+    dockerFiles: Sync.() -> Unit,
 ) {
     if (platforms.isEmpty()) {
         error("List of platforms is empty.")
     }
 
-    val dockerBuildDir = project.buildDir.resolve("docker")
+    val dockerBuildDir = project.layout.buildDirectory.get().asFile.resolve("docker")
 
     fun Project.dockerTag(versionTag: String = version.toString(), stage: String = ""): String {
         return if (stage.isEmpty()) {
@@ -48,36 +51,31 @@ fun Project.dockerProject(
 
         val multiplatformBuilder = "lovely-docker-container-builder"
 
-        fun buildXCmd(vararg tags: String, push: Boolean = false): Array<String> {
-            val imageTags = tags.map { listOf("-t", it) }.flatten().toTypedArray()
-            val buildArgs = if (push) {
-                // pushes the build result to the remote docker registry
-                arrayOf(
-                    "--platform", platforms.joinToString(","),
-                    "--push"
-                )
-            } else {
-                // use the build platform setting for local build targets
-                // use the local system architecture if no build platform is specified
-                val platformArgs = if (buildPlatforms.isNotEmpty()) {
-                    arrayOf(
-                        "--platform", buildPlatforms.joinToString(",")
-                    )
-                } else {
-                    emptyArray()
-                }
-
-                // ensure build images are loaded to the local container registry
-                arrayOf("--load", *platformArgs)
-            }
-            return arrayOf(
+        fun buildXCmd(vararg tags: String, push: Boolean = false, stage: String = ""): Array<String> {
+            val args = mutableListOf(
                 "docker", "buildx",
                 "build", ".",
                 // always use the builder using the docker-container driver in order to access BuildKit features
                 "--builder", multiplatformBuilder,
-                *imageTags,
-                *buildArgs,
             )
+            args.addAll(tags.map { listOf("-t", it) }.flatten())
+
+            if (push) {
+                args.add("--push")
+                platforms
+            } else {
+                args.add("--load")
+                buildPlatforms
+            }.takeIf { it.isNotEmpty() }?.let {
+                args.add("--platform")
+                args.add(platforms.joinToString(","))
+            }
+
+            if (stage.isNotEmpty()) {
+                args.add("--target")
+                args.add(stage)
+            }
+            return args.toTypedArray()
         }
 
         @Suppress("UNUSED_VARIABLE")
@@ -131,12 +129,9 @@ fun Project.dockerProject(
                 stages.forEach { stage ->
                     logger.info("building docker image stage=$stage")
                     exec {
-                        val cmd = buildXCmd(project.dockerTag(stage = stage), project.dockerTag("dev", stage))
+                        val cmd = buildXCmd(project.dockerTag(stage = stage), project.dockerTag("dev", stage), stage=stage)
                         workingDir = dockerBuildDir
                         commandLine(*cmd)
-                        if (stage.isNotEmpty()) {
-                            args("--target", stage)
-                        }
                     }
                     logger.info("docker build finished for stage=$stage")
                 }
@@ -162,7 +157,12 @@ fun Project.dockerProject(
                         val eo = ByteArrayOutputStream()
                         val e = exec {
                             isIgnoreExitValue = true
-                            commandLine("docker", "pull", tag)
+                            val platformArgs = if (platforms.isNotEmpty()) {
+                                arrayOf("--platform", platforms.first())
+                            } else {
+                                emptyArray()
+                            }
+                            commandLine("docker", "pull", *platformArgs, tag)
                             errorOutput = eo
 
                         }
@@ -173,7 +173,7 @@ fun Project.dockerProject(
                     }
                     doLast {
                         exec {
-                            val cmd = buildXCmd(tag, push = true)
+                            val cmd = buildXCmd(tag, push = true, stage = stage)
                             workingDir = dockerBuildDir
                             commandLine(*cmd)
                         }
@@ -192,7 +192,7 @@ fun Project.dockerProject(
                 val devTag = dockerTag("dev", stage = stage)
                 doLast {
                     exec {
-                        val cmd = buildXCmd(devTag, push = true)
+                        val cmd = buildXCmd(devTag, push = true, stage = stage)
                         workingDir = dockerBuildDir
                         commandLine(*cmd)
                     }

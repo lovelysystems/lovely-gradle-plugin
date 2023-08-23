@@ -1,7 +1,7 @@
 plugins {
     `kotlin-dsl`
-    kotlin("jvm") version "1.7.10"
-    id("com.gradle.plugin-publish") version "1.1.0"
+    kotlin("jvm") version "1.9.0"
+    id("com.gradle.plugin-publish") version "1.2.1"
 }
 
 repositories {
@@ -14,8 +14,14 @@ version = "1.11.5"
 val pluginId = "com.lovelysystems.gradle"
 
 gradlePlugin {
+    website.set("https://github.com/lovelysystems/lovely-gradle-plugin")
+    vcsUrl.set("https://github.com/lovelysystems/lovely-gradle-plugin")
+
     plugins {
         create(pluginId) {
+            description = "Gradle Plugins for Lovely Systems Projects"
+            tags.set(listOf("git", "docker"))
+
             id = pluginId
             implementationClass = "com.lovelysystems.gradle.LovelyGradlePlugin"
             displayName = "Lovely Systems Project Helpers"
@@ -31,12 +37,6 @@ dependencies {
     testImplementation("org.amshove.kluent:kluent:1.72")
 }
 
-pluginBundle {
-    website = "https://github.com/lovelysystems/lovely-gradle-plugin"
-    vcsUrl = "https://github.com/lovelysystems/lovely-gradle-plugin"
-    description = "Gradle Plugins for Lovely Systems Projects"
-    tags = listOf("git", "docker")
-}
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     kotlinOptions {

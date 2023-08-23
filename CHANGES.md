@@ -1,5 +1,17 @@
 # Changes for Lovely Gradle Plugin
 
+## unreleased
+
+### Develop
+
+- upgraded to kotlin 1.9 and gradle 1.8.x
+
+### Fixes
+
+- push multistage docker builds correctly, before only the base stage was pushed
+  to all stage tags
+- recognize already existing tags if platform is not the local platform
+
 ## 2023-07-19 / 1.11.5
 
 ### Fixes
