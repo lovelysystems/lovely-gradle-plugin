@@ -2,6 +2,7 @@ package com.lovelysystems.gradle
 
 import java.io.File
 import java.util.concurrent.TimeUnit
+import kotlin.io.path.createTempFile as ctf
 
 fun isProductionVersion(version: String): Boolean {
     return RELEASE_VERSION_PATTERN.matchEntire(version) != null
@@ -15,9 +16,8 @@ class LSGit(val dir: File) {
 
     fun gitCmd(vararg args: String, onError: ((String) -> String)? = null): String {
         val cmd = listOf("git") + args
-
-        val stdoutFile = createTempFile()
-        val stderrFile = createTempFile()
+        val stdoutFile = ctf().toFile()
+        val stderrFile = ctf().toFile()
 
         try {
             val proc = ProcessBuilder(cmd)

@@ -192,7 +192,7 @@ fun Project.pythonProject(pythonExecutable: String) {
     tasks.register("sdist") {
         dependsOn("venv", "writeVersion")
         inputs.files(fileTree("src"), pythonSettings.setupFile, "MANIFEST.in")
-        val out = buildDir.resolve("sdist")
+        val out = layout.buildDirectory.get().asFile.resolve("sdist")
         outputs.dir(out)
         doLast {
             out.deleteRecursively()
