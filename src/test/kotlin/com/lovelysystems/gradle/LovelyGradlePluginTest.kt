@@ -12,7 +12,7 @@ class LovelyGradlePluginTest {
     @get:Rule
     val tmp = TemporaryFolder()
 
-    val config = """
+    private val config = """
              plugins {
               id 'com.lovelysystems.gradle'
              }

@@ -8,7 +8,7 @@ import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.register
 import java.io.File
 
-open class PythonSettings(val project: Project, val pythonExecutable: String) {
+open class PythonSettings(project: Project, val pythonExecutable: String) {
 
     val envDir = project.file("v")
     val binDir = envDir.resolve("bin")
