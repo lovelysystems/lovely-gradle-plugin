@@ -1,4 +1,4 @@
-@file:Suppress("UnusedImport", "unused", "UNUSED_VARIABLE")
+@file:Suppress("unused")
 
 package com.lovelysystems.gradle
 
@@ -78,4 +78,3 @@ fun Project.gitProject() {
 
     }
 }
-

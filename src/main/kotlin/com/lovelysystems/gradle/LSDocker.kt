@@ -78,7 +78,6 @@ fun Project.dockerProject(
             return args.toTypedArray()
         }
 
-        @Suppress("UNUSED_VARIABLE")
         val printDockerTag by registering {
             description = "Prints out the computed docker tag(s) for this project"
             group = DOCKER_GROUP
@@ -100,7 +99,6 @@ fun Project.dockerProject(
         /**
          * Bootstraps a new docker-container builder
          */
-        @Suppress("UNUSED_VARIABLE")
         val prepareDockerContainerBuilder by registering {
             description = "Bootstraps a new docker-container builder"
             group = DOCKER_GROUP
@@ -183,7 +181,6 @@ fun Project.dockerProject(
             }
         }
 
-        @Suppress("UNUSED_VARIABLE")
         val pushDockerDevImage by registering {
             dependsOn(pushDockerImage)
             group = DOCKER_GROUP

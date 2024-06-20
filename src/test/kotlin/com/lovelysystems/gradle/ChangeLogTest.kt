@@ -2,7 +2,6 @@ package com.lovelysystems.gradle
 
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -109,7 +108,7 @@ class ChangeLogTest(private val suffix: String) {
         return parseChangeLog(f)
     }
 
-    fun createChangeLogFile(contentMap: Map<String, String>): File {
+    private fun createChangeLogFile(contentMap: Map<String, String>): File {
         val f = tmp.root.resolve("CHANGES.$suffix")
         val content = when (suffix){
             "txt" -> contentMap["rst"]!!

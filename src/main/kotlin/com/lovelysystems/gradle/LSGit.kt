@@ -49,7 +49,7 @@ class LSGit(val dir: File) {
 
     private fun localTagHash(name: String): String? {
         val res = gitCmd("show-ref", "--tags", "-s", name)
-        return if (res.isBlank()) return null else res
+        return res.ifBlank { return null }
     }
 
     private fun remoteTagHash(name: String): String? {

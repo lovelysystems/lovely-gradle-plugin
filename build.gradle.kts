@@ -1,6 +1,8 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     `kotlin-dsl`
-    kotlin("jvm") version "1.9.0"
+    kotlin("jvm") version "2.0.0"
     id("com.gradle.plugin-publish") version "1.2.1"
 }
 
@@ -39,8 +41,8 @@ dependencies {
 
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_11)
     }
 }
 

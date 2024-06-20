@@ -26,10 +26,10 @@ data class Version(val major: Int, val feature: Int, val patch: Int, val revisio
 
     override fun compareTo(other: Version): Int {
 
-        return major.compareTo(other.major).let {
-            if (it != 0) it else feature.compareTo(other.feature).let {
-                if (it != 0) it else patch.compareTo(other.patch).let {
-                    if (it != 0) it else revision.compareTo(other.revision)
+        return major.compareTo(other.major).let { majorDiff ->
+            if (majorDiff != 0) majorDiff else feature.compareTo(other.feature).let { featureDiff ->
+                if (featureDiff != 0) featureDiff else patch.compareTo(other.patch).let { patchDiff ->
+                    if (patchDiff != 0) patchDiff else revision.compareTo(other.revision)
                 }
             }
         }
