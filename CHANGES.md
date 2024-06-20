@@ -1,5 +1,16 @@
 # Changes for Lovely Gradle Plugin
 
+## Unreleased
+
+### Feature
+
+- support optional `platform` property in the `DockerCopy` task to use a specific platform for creating the source container
+
+### Develop
+
+- upgraded to kotlin 2.0.0 and gradle 8.8
+- minor code style changes
+
 ## 2023-08-23 / 1.12.0
 
 ### Develop
