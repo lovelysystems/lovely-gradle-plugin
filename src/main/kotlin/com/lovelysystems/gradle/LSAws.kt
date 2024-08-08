@@ -65,7 +65,6 @@ fun Project.awsProject(profile: String) {
          *
          * - If the profile is not configured, it will abort and ask to configure the profile first.
          * - If the profile is configured but the SSO token is expired, it will login to AWS SSO (automatically opens browser).
-         *
          */
         val ssoCredentials by registering {
             group = AWS_GROUP
@@ -95,12 +94,9 @@ fun Project.awsProject(profile: String) {
             }
         }
 
-
     }
 
-
 }
-
 
 class AwsError(val msg: String) {
     val profileNotFoundError by lazy { msg.contains("could not be found") }
