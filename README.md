@@ -123,6 +123,26 @@ lovely {
 }
 ```
 
+## AWS Project
+
+The AWS project add support for fetching temporary AWS SSO credentials for a configurable profile. In background it
+uses the official AWS CLI to fetch the credentials, for installation of the CLI read
+[here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html). The issued commands are described
+in the [AWS documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html).
+
+To enable it add the following to your `build.gradle.kts` file:
+
+```gradle
+lovely {
+  awsProject("<profile-name>")
+}
+```
+
+### Tasks
+
+- `ssoSessionSetup` - Setup lovely-sso session in the `~/.aws/config` file
+- `ssoCredentials` - Fetch temporary AWS SSO credentials for the configured profile (depends on`ssoSessionSetup`)
+
 ## License
 
 This plugin is made available under
