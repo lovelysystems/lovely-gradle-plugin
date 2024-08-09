@@ -78,7 +78,7 @@ fun Project.awsProject(profile: String) {
                         val msg = """
                         AWS profile '$profile' is not configured:
                          - Run 'aws configure sso --profile ${profile}' to configure the profile.
-                         - Use `lovely-sso` when prompted for the 'SSO session name', for the res use the default values.
+                         - Use `$SSO_SESSION_NAME` when prompted for the 'SSO session name', for the rest use the default values.
                         """.trimIndent()
                         error(msg)
                     } else {
