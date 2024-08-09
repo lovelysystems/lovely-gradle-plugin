@@ -41,7 +41,7 @@ fun Project.awsProject(profile: String) {
                     """.trimIndent()
 
                     Files.write(configFile, session.toByteArray(), StandardOpenOption.APPEND)
-                    println("Added lovely-sso session config to $configFile")
+                    println("Added $SSO_SESSION_NAME session config to $configFile")
                 }
             }
         }
@@ -64,7 +64,8 @@ fun Project.awsProject(profile: String) {
          * Task to get AWS SSO credentials for the configured [profile].
          *
          * - If the profile is not configured, it will abort and ask to configure the profile first.
-         * - If the profile is configured but the SSO token is expired, it will login to AWS SSO (automatically opens browser).
+         * - If the profile is configured but the SSO token is expired, it will login to AWS SSO (automatically opens
+         *   browser).
          */
         val ssoCredentials by registering {
             group = AWS_GROUP
@@ -87,10 +88,10 @@ fun Project.awsProject(profile: String) {
 
                 runCmd("aws sts get-caller-identity --profile $profile") { error ->
                     if (error.ssoTokenError) runCmd("aws sso login --profile $profile")
+                    else error("Failed to get caller identity for profile '$profile'. Error: ${error.msg}")
                 }
 
                 println("\nAWS SSO credentials for profile '$profile' are now configured and ready to be used.")
-
             }
         }
 
@@ -98,7 +99,7 @@ fun Project.awsProject(profile: String) {
 
 }
 
-class AwsError(val msg: String) {
+private class AwsError(val msg: String) {
     val profileNotFoundError by lazy { msg.contains("could not be found") }
     val ssoTokenError by lazy { msg.contains("Error loading SSO Token") }
 }
