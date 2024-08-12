@@ -9,6 +9,8 @@ import java.io.ByteArrayOutputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
+import kotlin.io.path.createFile
+import kotlin.io.path.notExists
 
 private const val AWS_GROUP = "aws"
 
@@ -17,16 +19,16 @@ fun Project.awsProject(profile: String, ssoSessionSettings: SsoSessionSettings) 
     tasks {
 
         /**
-         * Task to setup the AWS SSO session config if not already present. This is required to use AWS SSO and must be
-         * setup only once.
+         * Task to setup the AWS SSO session config if not already present. This is required to use AWS SSO and has to
+         * be run only once. The config is stored in `~/.aws/config`.
          */
         val ssoSessionSetup by tasks.registering {
             group = AWS_GROUP
-            description = "Setup lovely-sso session config"
+            description = "Setup ${SsoSessionSettings.NAME} session config"
 
             doLast {
                 val userHome = System.getProperty("user.home")
-                val configFile = Paths.get("$userHome/.aws/config")
+                val configFile = Paths.get("$userHome/.aws/config").apply { if (notExists()) createFile() }
                 val config = Files.readAllLines(configFile)
 
                 if (!config.contains("[sso-session ${SsoSessionSettings.NAME}]")) {
@@ -64,7 +66,7 @@ fun Project.awsProject(profile: String, ssoSessionSettings: SsoSessionSettings) 
             dependsOn(ssoSessionSetup)
 
             doLast {
-                runCmd("[[ \$(aws configure --profile $profile list) && \$? -eq 0 ]]") { error ->
+                runCmd("aws sts get-caller-identity --profile $profile") { error ->
                     if (error.profileNotFoundError) {
                         val msg = """
                         AWS profile '$profile' is not configured:
@@ -72,14 +74,11 @@ fun Project.awsProject(profile: String, ssoSessionSettings: SsoSessionSettings) 
                          - Use `${SsoSessionSettings.NAME}` when prompted for the 'SSO session name', for the rest use the default values.
                         """.trimIndent()
                         error(msg)
+                    } else if (error.ssoTokenError) {
+                        runCmd("aws sso login --profile $profile")
                     } else {
-                        error("Failed to check if profile '$profile' is configured. Error: ${error.msg}")
+                        error("Failed to get caller identity for profile '$profile'. Error: ${error.msg}")
                     }
-                }
-
-                runCmd("aws sts get-caller-identity --profile $profile") { error ->
-                    if (error.ssoTokenError) runCmd("aws sso login --profile $profile")
-                    else error("Failed to get caller identity for profile '$profile'. Error: ${error.msg}")
                 }
 
                 println("\nAWS SSO credentials for profile '$profile' are now configured and ready to be used.")
@@ -101,7 +100,7 @@ data class SsoSessionSettings(
 }
 
 private class AwsError(val msg: String) {
-    val profileNotFoundError by lazy { msg.contains("could not be found") }
+    val profileNotFoundError by lazy { msg.matches(Regex("The config profile \\(.+\\) could not be found")) }
     val ssoTokenError by lazy { msg.contains("Error loading SSO Token") }
 }
 
