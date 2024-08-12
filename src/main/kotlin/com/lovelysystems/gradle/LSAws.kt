@@ -11,11 +11,8 @@ import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 
 private const val AWS_GROUP = "aws"
-private const val SSO_SESSION_NAME = "lovely-sso"
-private const val SSO_START_URL = "https://lovelysystems.awsapps.com/start"
-private const val SSO_REGION = "eu-central-1"
 
-fun Project.awsProject(profile: String) {
+fun Project.awsProject(profile: String, ssoSessionSettings: SsoSessionSettings) {
 
     tasks {
 
@@ -27,21 +24,15 @@ fun Project.awsProject(profile: String) {
             group = AWS_GROUP
             description = "Setup lovely-sso session config"
 
-            val userHome = System.getProperty("user.home")
-            val configFile = Paths.get("$userHome/.aws/config")
-            val config = Files.readAllLines(configFile)
-
             doLast {
-                if (!config.contains("[sso-session $SSO_SESSION_NAME]")) {
-                    val session = """
-                        [sso-session $SSO_SESSION_NAME]
-                        sso_start_url = $SSO_START_URL
-                        sso_region = $SSO_REGION
-                        sso_registration_scopes = sso:account:access
-                    """.trimIndent()
+                val userHome = System.getProperty("user.home")
+                val configFile = Paths.get("$userHome/.aws/config")
+                val config = Files.readAllLines(configFile)
 
-                    Files.write(configFile, session.toByteArray(), StandardOpenOption.APPEND)
-                    println("Added $SSO_SESSION_NAME session config to $configFile")
+                if (!config.contains("[sso-session ${SsoSessionSettings.NAME}]")) {
+                    val sessionConfig = ssoSessionSettings.toAwsConfig()
+                    Files.write(configFile, sessionConfig.toByteArray(), StandardOpenOption.APPEND)
+                    println("Added ${SsoSessionSettings.NAME} session config to $configFile")
                 }
             }
         }
@@ -78,7 +69,7 @@ fun Project.awsProject(profile: String) {
                         val msg = """
                         AWS profile '$profile' is not configured:
                          - Run 'aws configure sso --profile ${profile}' to configure the profile.
-                         - Use `$SSO_SESSION_NAME` when prompted for the 'SSO session name', for the rest use the default values.
+                         - Use `${SsoSessionSettings.NAME}` when prompted for the 'SSO session name', for the rest use the default values.
                         """.trimIndent()
                         error(msg)
                     } else {
@@ -99,7 +90,25 @@ fun Project.awsProject(profile: String) {
 
 }
 
+data class SsoSessionSettings(
+    val startUrl: String = "https://lovelysystems.awsapps.com/start",
+    val region: String = "eu-central-1",
+    val scopes: String = "sso:account:access",
+) {
+    companion object {
+        const val NAME = "lovely-gradle-sso"
+    }
+}
+
 private class AwsError(val msg: String) {
     val profileNotFoundError by lazy { msg.contains("could not be found") }
     val ssoTokenError by lazy { msg.contains("Error loading SSO Token") }
 }
+
+private fun SsoSessionSettings.toAwsConfig(): String =
+    """
+        [sso-session ${SsoSessionSettings.NAME}]
+        sso_start_url = $startUrl
+        sso_region = $region
+        sso_registration_scopes = $scopes
+    """.trimIndent()

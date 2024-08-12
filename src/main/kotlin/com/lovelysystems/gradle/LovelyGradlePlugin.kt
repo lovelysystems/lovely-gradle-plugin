@@ -32,8 +32,8 @@ open class LovelyPluginExtension(private val project: Project) {
         project.dockerProject(repository, stages, platforms, buildPlatforms, dockerFiles)
     }
 
-    fun awsProject(profile: String) {
-        project.awsProject(profile)
+    fun awsProject(profile: String, ssoSessionSettings: SsoSessionSettings = SsoSessionSettings()) {
+        project.awsProject(profile, ssoSessionSettings)
     }
 
 }
