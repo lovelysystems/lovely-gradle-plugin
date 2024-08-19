@@ -130,33 +130,30 @@ uses the official AWS CLI to fetch the credentials, for installation of the CLI 
 [here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html). The issued commands are described
 in the [AWS documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html).
 
-To enable it add the following to your `build.gradle.kts` file (configured directly via code):
+Before using the plugin you should 
+[configure sso](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/configure/sso.html) on your
+machine to create a profile that sources temporary AWS credentials from AWS IAM Identity Center:
 
-```kotlin
-val settings = SsoSessionSettings(
-    startUrl = "https://<sso-start-url>.awsapps.com/start",
-    region = "eu-central-1",
-)
-
-lovely {
-  awsProject("<profile-name>", ssoSessionSettings = settings)
-}
+```shell
+aws configure sso --profile <my-profile>
 ```
 
-Alternatively, you can use the shorthand version by:
+When prompted, give the SSO session a meaningful name. If you need to setup other profiles later on then you can
+reference the existing SSO session config (an SSO session can be referenced by multiple profiles, read the official
+documentation for further details).
+
+To enable the plugin add the following to your `build.gradle.kts` file:
 
 ```kotlin
 lovely {
-  awsProject("<profile-name>")
+  awsProject("<my-profile>")
 }
 ```
-
-which expects you to have the `AWS_SSO_DEFAULT_START_URL` and `AWS_DEFAULT_REGION` environment variables set.
 
 ### Tasks
 
-- `ssoSessionSetup` - Setup lovely-sso session in the `~/.aws/config` file (has to run only once on the machine)
-- `ssoCredentials` - Fetch temporary AWS SSO credentials for the configured profile (depends on`ssoSessionSetup`)
+- `ssoCredentials` - Fetches temporary AWS SSO credentials for the configured profile. If the profile doesn't exist
+  on your machine you will be prompted to create it.
 
 ### Task types
 
