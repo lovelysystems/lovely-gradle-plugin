@@ -130,13 +130,28 @@ uses the official AWS CLI to fetch the credentials, for installation of the CLI 
 [here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html). The issued commands are described
 in the [AWS documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html).
 
-To enable it add the following to your `build.gradle.kts` file:
+To enable it add the following to your `build.gradle.kts` file (configured directly via code):
+
+```kotlin
+val settings = SsoSessionSettings(
+    startUrl = "https://<sso-start-url>.awsapps.com/start",
+    region = "eu-central-1",
+)
+
+lovely {
+  awsProject("<profile-name>", ssoSessionSettings = settings)
+}
+```
+
+Alternatively, you can use the shorthand version by:
 
 ```kotlin
 lovely {
   awsProject("<profile-name>")
 }
 ```
+
+which expects you to have the `AWS_SSO_DEFAULT_START_URL` and `AWS_SSO_REGION` environment variables set.
 
 ### Tasks
 

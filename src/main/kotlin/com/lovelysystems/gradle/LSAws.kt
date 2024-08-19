@@ -74,10 +74,8 @@ fun Project.awsProject(profile: String, ssoSessionSettings: SsoSessionSettings) 
                          - Use `${SsoSessionSettings.NAME}` when prompted for the 'SSO session name', for the rest use the default values.
                         """.trimIndent()
                         error(msg)
-                    } else if (error.ssoTokenError) {
-                        runCmd("aws sso login --profile $profile")
                     } else {
-                        error("Failed to get caller identity for profile '$profile'. Error: ${error.msg}")
+                        runCmd("aws sso login --profile $profile")
                     }
                 }
 
@@ -90,18 +88,22 @@ fun Project.awsProject(profile: String, ssoSessionSettings: SsoSessionSettings) 
 }
 
 data class SsoSessionSettings(
-    val startUrl: String = "https://lovelysystems.awsapps.com/start",
-    val region: String = "eu-central-1",
+    val startUrl: String = System.getenv("AWS_DEFAULT_SSO_START_URL") ?: "",
+    val region: String = System.getenv("AWS_DEFAULT_REGION") ?: "",
     val scopes: String = "sso:account:access",
 ) {
     companion object {
         const val NAME = "lovely-gradle-sso"
     }
+
+    init {
+        require(startUrl.isNotEmpty()) { "'${SsoSessionSettings::startUrl.name}' must not be blank." }
+        require(region.isNotEmpty()) { "'${SsoSessionSettings::region.name}' must not be blank." }
+    }
 }
 
 private class AwsError(val msg: String) {
     val profileNotFoundError by lazy { msg.matches(Regex("The config profile \\(.+\\) could not be found")) }
-    val ssoTokenError by lazy { msg.contains("Error loading SSO Token") }
 }
 
 private fun SsoSessionSettings.toAwsConfig(): String =
