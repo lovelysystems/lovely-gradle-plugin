@@ -151,7 +151,7 @@ lovely {
 }
 ```
 
-which expects you to have the `AWS_SSO_DEFAULT_START_URL` and `AWS_SSO_REGION` environment variables set.
+which expects you to have the `AWS_SSO_DEFAULT_START_URL` and `AWS_DEFAULT_REGION` environment variables set.
 
 ### Tasks
 
