@@ -1,5 +1,11 @@
 # Changes for Lovely Gradle Plugin
 
+## unreleased
+
+### Feature
+
+- introduce `LSAws` plugin to setup and retrieve AWS SSO credentials
+
 ## 2024-06-20 / 1.13.0
 
 ### Feature

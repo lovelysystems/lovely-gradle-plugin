@@ -11,7 +11,7 @@ the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.lovelysystems.g
 and can be applied to your project by adding it to the plugins section of your `build.gradle.kts`
 file like this:
 
-```
+```kotlin
 plugins {
     id("com.lovelysystems.gradle") version ("1.0.0")
 }
@@ -26,7 +26,7 @@ automatically generate a new version tag and push it based on the changelog.
 
 To enable this functionality add the following to your `build.gradle.kts` file:
 
-```gradle
+```kotlin
 lovely {
   gitProject()
 }
@@ -55,7 +55,7 @@ for `createTag` to operate:
 This functionality is enabled by defining the docker repository for the project in the
 `build.gradle.kts` file like this::
 
-```gradle
+```kotlin
 lovely {
   dockerProject("hub.example.com/lovely/exampleproject")
 }
@@ -68,7 +68,7 @@ Optionally a list of stages to build can be supplied to build multiple stages fr
 Dockerfile. The default is to just build the default stage, which is actually an empty string, so
 the above example naming the stage explicitly looks like this:
 
-```gradle
+```kotlin
 lovely {
   dockerProject("hub.example.com/lovely/exampleproject", stages=listOf(""))
 }
@@ -85,7 +85,7 @@ supported [platform identifiers](https://docs.docker.com/engine/reference/comman
 In case there are build platforms set, the local docker builds the image for these platforms. Otherwise the
 local system architecture is used as build platform.
 
-```gradle
+```kotlin
 lovely {
   dockerProject(
     "hub.example.com/lovely/exampleproject", 
@@ -117,11 +117,56 @@ The Python project support ads an opinionated project setup for Python projects 
 [pip-tools](https://github.com/jazzband/pip-tools). To enable it add the following to
 your `build.gradle.kts` file:
 
-```gradle
+```kotlin
 lovely {
   pythonProject()
 }
 ```
+
+## AWS Project
+
+The AWS project add support for fetching temporary AWS SSO credentials for a configurable profile. In background it
+uses the official AWS CLI to fetch the credentials, for installation of the CLI read
+[here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html). The issued commands are described
+in the [AWS documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html).
+
+Before using the plugin you should 
+[configure sso](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/configure/sso.html) on your
+machine to create a profile that sources temporary AWS credentials from AWS IAM Identity Center:
+
+```shell
+aws configure sso --profile <my-profile>
+```
+
+When prompted, give the SSO session a meaningful name. If you need to setup other profiles later on then you can
+reference the existing SSO session config (an SSO session can be referenced by multiple profiles, read the official
+documentation for further details).
+
+To enable the plugin add the following to your `build.gradle.kts` file:
+
+```kotlin
+lovely {
+  awsProject("<my-profile>")
+}
+```
+
+### Tasks
+
+- `ssoCredentials` - Fetches temporary AWS SSO credentials for the configured profile. If the profile doesn't exist
+  on your machine you will be prompted to create it.
+
+### Task types
+
+- `S3UploadDirectory` - Uploads a directory to an S3 bucket, e.g.:
+    ```kotlin
+    val uploadMyContent by tasks.registering(UploadDirectoryToS3::class) {
+        profile = "<profile-name>"
+        bucket = "<bucket-name>"
+        sourceDirectory = File("build/content")
+        prefix = "content/$version" // optional (defaults to "")
+        owerwrite = true // optional (defaults to false)
+    }
+    ```
 
 ## License
 
