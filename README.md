@@ -111,9 +111,17 @@ docker-container builder on your host.
 * `pushDockerImage` - Pushes the Docker image to the registry
 * `pushDockerDevImage` - Pushes the Docker image to the registry and tag it as `dev`
 
-### How to release/publish a new version?
+### How to release/publish a new development version?
 
-The following described steps explain how to release a new version your project:
+The following steps explain how to release a new development version of your project:
+
+1. There are no uncommitted changes and everything is pushed to the remote
+2. Run `./gradlew pushDockerDevImage` to build a docker image and push it to the registry
+3. Run `./gradle printDockerTag` to get the tag of the pushed image
+
+### How to release/publish a new production version?
+
+The following steps explain how to release a new stable version of your project:
 
 1. You are on the default branch or a release branch
 2. The latest changelog entry is updated with a valid (e.g. 1.0.0) version number
