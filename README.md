@@ -38,7 +38,7 @@ lovely {
 * `printChangeLogVersion`: Parses the changes file and prints out the latest defined version
 * `createTag` - Creates a new git tag for the current version and pushes the tag to the upstream
 
-The `createTag` task creates a version tag for the latest version defined in the `CHANGES.rst` file
+The `createTag` task creates a version tag for the latest version defined in the `CHANGES.(rst|md|txt)` file
 in the root of the project. The task validates the state of the project tree and only allows to tag
 the version if the validation passes. The following conditions need to be met in order
 for `createTag` to operate:
@@ -110,6 +110,16 @@ docker-container builder on your host.
 * `buildDockerImage` - Builds a Docker image and tags it with current version and dev
 * `pushDockerImage` - Pushes the Docker image to the registry
 * `pushDockerDevImage` - Pushes the Docker image to the registry and tag it as `dev`
+
+### How to release/publish a new version?
+
+The following described steps explain how to release a new version your project:
+
+1. You are on the default branch or a release branch
+2. The latest changelog entry is updated with a valid (e.g. 1.0.0) version number
+3. There are no uncommitted changes and everything is pushed to the remote
+4. Create a new tag with the `./gradlew createTag` task
+5. Run `./gradlew pushDockerImage` to build a docker image and push it to the registry
 
 ## Python Project
 
