@@ -181,6 +181,7 @@ lovely {
         profile = "<profile-name>"
         bucket = "<bucket-name>"
         sourceDirectory = File("build/content")
+        region = Region.EU_CENTRAL_1 // optional (defaults to Region.EU_CENTRAL_1)
         prefix = "content/$version" // optional (defaults to "")
         owerwrite = true // optional (defaults to false)
     }
