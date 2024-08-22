@@ -58,7 +58,7 @@ abstract class S3UploadDirectory : DefaultTask() {
 
         val s3Client = S3CrtAsyncClient.builder()
             .credentialsProvider(ProfileCredentialsProvider.create(profile.get()))
-            .region(Region.EU_CENTRAL_1)
+            .region(region.get())
             .build()
 
         HeadBucketRequest.builder().bucket(bucket.get()).build().let { req ->
