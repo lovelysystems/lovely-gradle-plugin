@@ -1,5 +1,12 @@
 # Changes for Lovely Gradle Plugin
 
+## unreleased
+
+### Fix
+
+- set the proper content type per file when uploading files to S3 using `S3UploadDirectory` task type
+- make AWS region configurable in `S3UploadDirectory` task type instead of using a fixed value
+
 ## 2024-08-20 / 1.14.0
 
 ### Feature

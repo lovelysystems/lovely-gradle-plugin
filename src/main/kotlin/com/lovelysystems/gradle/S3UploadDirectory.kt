@@ -6,6 +6,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider
+import software.amazon.awssdk.core.internal.util.Mimetype
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.internal.crt.S3CrtAsyncClient
 import software.amazon.awssdk.services.s3.model.HeadBucketRequest
@@ -13,6 +14,7 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Request
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException
 import software.amazon.awssdk.transfer.s3.S3TransferManager
 import software.amazon.awssdk.transfer.s3.model.UploadDirectoryRequest
+import software.amazon.awssdk.transfer.s3.model.UploadFileRequest
 import java.io.File
 import java.util.concurrent.ExecutionException
 
@@ -32,6 +34,10 @@ abstract class S3UploadDirectory : DefaultTask() {
 
     @get:Input
     @get:Optional
+    abstract val region: Property<Region>
+
+    @get:Input
+    @get:Optional
     abstract val prefix: Property<String>
 
     @get:Input
@@ -39,6 +45,7 @@ abstract class S3UploadDirectory : DefaultTask() {
     abstract val overwrite: Property<Boolean>
 
     init {
+        region.convention(Region.EU_CENTRAL_1)
         prefix.convention("")
         overwrite.convention(false)
     }
@@ -51,7 +58,7 @@ abstract class S3UploadDirectory : DefaultTask() {
 
         val s3Client = S3CrtAsyncClient.builder()
             .credentialsProvider(ProfileCredentialsProvider.create(profile.get()))
-            .region(Region.EU_CENTRAL_1)
+            .region(region.get())
             .build()
 
         HeadBucketRequest.builder().bucket(bucket.get()).build().let { req ->
@@ -73,8 +80,21 @@ abstract class S3UploadDirectory : DefaultTask() {
         }
 
         S3TransferManager.builder().s3Client(s3Client).build().use { transferManager ->
-            val req = UploadDirectoryRequest.builder().bucket(bucket.get()).s3Prefix(prefix.get())
-                .source(sourceDirectory.get().toPath()).build()
+            // Sets the correct content type for each file
+            val uploadTransformer: (t: UploadFileRequest.Builder) -> Unit = { uploadBuilder ->
+                val uploadFileRequest = uploadBuilder.build()
+                val contentType = Mimetype.getInstance().getMimetype(uploadFileRequest.source())
+                val putRequest = uploadFileRequest.putObjectRequest().toBuilder().contentType(contentType).build()
+                uploadBuilder.putObjectRequest(putRequest)
+            }
+            val req = UploadDirectoryRequest
+                .builder()
+                .bucket(bucket.get())
+                .s3Prefix(prefix.get())
+                .source(sourceDirectory.get().toPath())
+                .uploadFileRequestTransformer(uploadTransformer)
+                .build()
+
             val result = transferManager.uploadDirectory(req).completionFuture().join()
 
             result.failedTransfers().takeIf { it.isNotEmpty() }?.let { failedTransfers ->
