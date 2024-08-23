@@ -36,7 +36,6 @@ dependencies {
     listOf("s3", "s3-transfer-manager", "sso", "ssooidc").forEach {
         implementation("software.amazon.awssdk:$it:2.26.30")
     }
-    implementation("software.amazon.awssdk.crt:aws-crt:0.30.5")
     testImplementation(gradleTestKit())
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit"))
