@@ -1,5 +1,12 @@
 # Changes for Lovely Gradle Plugin
 
+## unreleased
+
+### Fix
+
+- use default `S3AsyncClient` instead of `S3CrtAsyncClient` (has issues with Content-Encoding header,
+  see [issue](https://github.com/aws/aws-sdk-java-v2/issues/5071))
+
 ## 2024-08-22 / 1.14.1
 
 ### Fix

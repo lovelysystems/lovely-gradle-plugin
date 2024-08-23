@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskAction
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider
 import software.amazon.awssdk.core.internal.util.Mimetype
 import software.amazon.awssdk.regions.Region
-import software.amazon.awssdk.services.s3.internal.crt.S3CrtAsyncClient
+import software.amazon.awssdk.services.s3.S3AsyncClient
 import software.amazon.awssdk.services.s3.model.HeadBucketRequest
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException
@@ -56,7 +56,7 @@ abstract class S3UploadDirectory : DefaultTask() {
             throw RuntimeException("source ${sourceDirectory.get()} is not a directory")
         }
 
-        val s3Client = S3CrtAsyncClient.builder()
+        val s3Client = S3AsyncClient.builder()
             .credentialsProvider(ProfileCredentialsProvider.create(profile.get()))
             .region(region.get())
             .build()
