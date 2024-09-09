@@ -20,6 +20,11 @@ To publish a new version to the gradle portal:
 
 2. Run task `./gradlew createTag`
 
-3. Configure the credentials for publishing to gradle portal.
+3. Configure the credentials for publishing to gradle portal. Set the environment variables:
+
+```shell
+GRADLE_PUBLISH_KEY=...
+GRADLE_PUBLISH_SECRET=...
+```
 
 4. Runtask `./gradlew publishPlugins`
