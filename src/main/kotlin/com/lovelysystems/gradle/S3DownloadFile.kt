@@ -32,14 +32,14 @@ abstract class S3DownloadFile : DefaultTask() {
 
     @get:Input
     @get:Optional
-    abstract val region: Property<Region>
+    abstract val region: Property<String>
 
     @get:Input
     @get:Optional
     abstract val key: Property<String>
 
     init {
-        region.convention(Region.EU_CENTRAL_1)
+        region.convention(Region.EU_CENTRAL_1.toString())
     }
 
     @TaskAction
@@ -51,7 +51,7 @@ abstract class S3DownloadFile : DefaultTask() {
 
         val s3Client = S3AsyncClient.builder()
             .credentialsProvider(ProfileCredentialsProvider.create(profile.get()))
-            .region(region.get())
+            .region(Region.of(region.get()))
             .build()
 
         HeadBucketRequest.builder().bucket(bucket.get()).build().let { req ->
