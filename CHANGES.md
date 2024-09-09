@@ -4,7 +4,7 @@
 
 ### Features
 
-- add `S3DownloadFiles` task
+- add `S3DownloadFile` task
 
 ### Development
 

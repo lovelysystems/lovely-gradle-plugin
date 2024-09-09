@@ -15,13 +15,11 @@ import software.amazon.awssdk.transfer.s3.S3TransferManager
 import software.amazon.awssdk.transfer.s3.model.DownloadFileRequest
 import java.io.File
 import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.ExecutionException
 import kotlin.io.path.createFile
-import kotlin.io.path.deleteIfExists
 
-abstract class S3DownloadFiles : DefaultTask() {
+abstract class S3DownloadFile : DefaultTask() {
 
     @get:Input
     abstract val profile: Property<String>
@@ -30,7 +28,7 @@ abstract class S3DownloadFiles : DefaultTask() {
     abstract val bucket: Property<String>
 
     @get:Input
-    abstract val targetDirectory: Property<File>
+    abstract val targetFile: Property<File>
 
     @get:Input
     @get:Optional
@@ -38,17 +36,17 @@ abstract class S3DownloadFiles : DefaultTask() {
 
     @get:Input
     @get:Optional
-    abstract val prefix: Property<String>
+    abstract val key: Property<String>
 
     init {
         region.convention(Region.EU_CENTRAL_1)
-        prefix.convention("")
     }
 
     @TaskAction
     fun download() {
-        if (!targetDirectory.get().isDirectory) {
-            throw RuntimeException("target ${targetDirectory.get()} is not a directory")
+        if (targetFile.get().exists()) {
+            logger.debug("Target file {} exists. Skipping download from S3.", targetFile.get())
+            return
         }
 
         val s3Client = S3AsyncClient.builder()
@@ -67,27 +65,33 @@ abstract class S3DownloadFiles : DefaultTask() {
             }
         }
 
-        val listResponse = ListObjectsV2Request.builder().bucket(bucket.get()).prefix(prefix.get()).build()
+        val listResponse = ListObjectsV2Request.builder().bucket(bucket.get()).prefix(key.get()).build()
             .let { req -> s3Client.listObjectsV2(req).get() }
 
         if (!listResponse.hasContents()) {
-            throw RuntimeException("No contents matching ${bucket.get()}/${prefix.get()} found")
+            throw RuntimeException("No object ${bucket.get()}/${key.get()} found")
+        }
+
+        if (listResponse.keyCount() > 1) {
+            throw RuntimeException(
+                "More than one object matching ${bucket.get()}/${key.get()} found. Found ${
+                    listResponse.contents().map { it.key() }
+                }"
+            )
         }
 
         S3TransferManager.builder().s3Client(s3Client).build().use { transferManager ->
-            listResponse.contents().forEach { obj ->
-                val destination = Paths.get(targetDirectory.get().absolutePath, obj.key())
-                Files.createDirectories(destination.parent)
-                destination.deleteIfExists()
-                destination.createFile()
+            val obj = listResponse.contents().first()
+            val destination = Paths.get(targetFile.get().absolutePath)
+            Files.createDirectories(destination.parent)
+            destination.createFile()
 
-                val downloadFile = transferManager.downloadFile(DownloadFileRequest.builder()
-                    .getObjectRequest { builder -> builder.bucket(bucket.get()).key(obj.key()) }
-                    .destination(destination)
-                    .build()
-                )
-                downloadFile.completionFuture().join()
-            }
+            val downloadFile = transferManager.downloadFile(DownloadFileRequest.builder()
+                .getObjectRequest { builder -> builder.bucket(bucket.get()).key(obj.key()) }
+                .destination(destination)
+                .build()
+            )
+            downloadFile.completionFuture().join()
         }
     }
 }

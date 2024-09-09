@@ -186,15 +186,14 @@ lovely {
         overwrite = true // optional (defaults to false)
     }
     ```
-- `S3DownloadFiles` - Downloads files into a directory, e.g.:
+- `S3DownloadFile` - Downloads a single file. Only downloads the file if the targetFile doesn't exist e.g.:
   ```kotlin
-  val downloadMyContent by tasks.registering(S3DownloadFiles::class) {
+  val downloadMyContent by tasks.registering(S3DownloadFile::class) {
     profile = "<profile-name>"
     bucket = "<bucket-name>"
-    targetDirectory = File("samples/content")
-    prefix.set("samples.zip")
+    key = "samples.zip"
+    targetFile = File("samples/content.zip")
     region = Region.EU_CENTRAL_1 // optional (defaults to Region.EU_CENTRAL_1)
-    prefix = "content/$version" // optional (defaults to "")
   }
   ```
 
