@@ -186,6 +186,17 @@ lovely {
         overwrite = true // optional (defaults to false)
     }
     ```
+- `S3DownloadFiles` - Downloads files into a directory, e.g.:
+  ```kotlin
+  val downloadMyContent by tasks.registering(S3DownloadFiles::class) {
+    profile = "<profile-name>"
+    bucket = "<bucket-name>"
+    targetDirectory = File("samples/content")
+    prefix.set("samples.zip")
+    region = Region.EU_CENTRAL_1 // optional (defaults to Region.EU_CENTRAL_1)
+    prefix = "content/$version" // optional (defaults to "")
+  }
+  ```
 
 ## License
 
