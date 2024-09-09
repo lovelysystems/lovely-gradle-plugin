@@ -1,5 +1,15 @@
 # Changes for Lovely Gradle Plugin
 
+## Unreleased
+
+### Features
+
+- add `S3DownloadFiles` task
+
+### Development
+
+- Upgrade examples project to gradle 8.8
+
 ## 2024-08-22 / 1.14.2
 
 ### Fix
