@@ -3,9 +3,11 @@ plugins {
     id("com.lovelysystems.gradle")
 }
 
+val awsProfile = "lovely"
 lovely {
     gitProject()
     pythonProject("python3")
+    awsProject(awsProfile)
 
     // build the default stage "" and the "base" stage defined in the Dockerfile
     dockerProject(
