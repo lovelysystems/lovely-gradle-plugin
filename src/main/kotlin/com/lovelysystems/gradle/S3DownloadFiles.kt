@@ -60,8 +60,6 @@ abstract class S3DownloadFiles : DefaultTask() {
             try {
                 s3Client.headBucket(req).get()
             } catch (e: ExecutionException) {
-                println("GOT exception $e")
-                e.printStackTrace()
                 when (e.cause) {
                     is NoSuchBucketException -> throw RuntimeException("Bucket ${bucket.get()} does not exist")
                     else -> throw e
