@@ -186,7 +186,7 @@ lovely {
         overwrite = true // optional (defaults to false)
     }
     ```
-- `S3DownloadFile` - Downloads a single file. Only downloads the file if the targetFile doesn't exist e.g.:
+- `S3DownloadFile` - Downloads a single file. Only downloads the file if the targetFile doesn't exist. Usage:
   ```kotlin
   val downloadMyContent by tasks.registering(S3DownloadFile::class) {
     profile = "<profile-name>"
