@@ -49,7 +49,10 @@ abstract class S3DownloadFile : DefaultTask() {
     @TaskAction
     fun download() {
         if (targetFile.get().exists()) {
-            logger.debug("Target file {} exists. Skipping download from S3.", targetFile.get())
+            //even when adding a custom upToDateWhen the task might still be rerun when another upToDateWhen condition is false
+            // e.g. when an input changed. This task should however ONLY download from S3 when the target doesn't already exist.
+            // Because the other built-in upToDateWhen conditions cannot be ignored the implementation needs to abort if the target already exists
+            logger.info("Target file {} exists. Skipping download from S3.", targetFile.get())
             return
         }
 
