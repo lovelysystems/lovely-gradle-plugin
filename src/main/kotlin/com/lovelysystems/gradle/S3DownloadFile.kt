@@ -4,6 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider
 import software.amazon.awssdk.regions.Region
@@ -27,7 +28,7 @@ abstract class S3DownloadFile : DefaultTask() {
     @get:Input
     abstract val bucket: Property<String>
 
-    @get:Input
+    @get:OutputFile
     abstract val targetFile: Property<File>
 
     @get:Input
@@ -40,6 +41,9 @@ abstract class S3DownloadFile : DefaultTask() {
 
     init {
         region.convention(Region.EU_CENTRAL_1.toString())
+        outputs.upToDateWhen {
+            targetFile.get().exists()
+        }
     }
 
     @TaskAction
