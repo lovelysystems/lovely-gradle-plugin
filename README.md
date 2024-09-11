@@ -186,17 +186,24 @@ lovely {
         overwrite = true // optional (defaults to false)
     }
     ```
-- `S3DownloadFile` - Downloads a single file. Only downloads the file if the targetFile doesn't exist.
-  It should only be used to download files which aren't changing, e.g. downloading example data, as newer versions from 
-  S3 will not be downloaded if one already exists. Usage:
+  
+- Download Files from S3. Configure the plugin to create task. Downloads a single file. Only downloads the 
+  file if the targetFile doesn't exist. It should only be used to download files which aren't changing,
+  e.g. downloading example data, as newer versions from S3 will not be downloaded if one already exists. Usage:
   ```kotlin
-  val downloadMyContent by tasks.registering(S3DownloadFile::class) {
-    profile = "<profile-name>"
-    bucket = "<bucket-name>"
-    key = "samples.zip"
-    targetFile = File("samples/content.zip")
-    region = Region.EU_CENTRAL_1 // optional (defaults to Region.EU_CENTRAL_1)
-  }
+  awsProject("<profile-name>") {
+        downloadTasks = listOf({
+            taskName = "downloadFile" //optional, defaults to "downloadFile"
+            bucket = "<bucket-name>"
+            key = "samples.zip"
+            targetFile = File("samples/content.zip")
+            region = "eu-central-1" // optional (defaults to "eu-central-1")
+        })
+    }
+  ```
+  
+  ```shell
+  ./gradlew downloadFile
   ```
 
 ## License

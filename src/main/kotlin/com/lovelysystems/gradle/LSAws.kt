@@ -1,5 +1,7 @@
 package com.lovelysystems.gradle
 
+import com.lovelysystems.gradle.aws.S3DownloadTaskConfiguration
+import com.lovelysystems.gradle.aws.downloadS3File
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.invoke
@@ -9,7 +11,14 @@ import java.io.ByteArrayOutputStream
 
 private const val AWS_GROUP = "aws"
 
-fun Project.awsProject(profile: String) {
+class AwsProjectConfiguration {
+    var downloadTasks: List<S3DownloadTaskConfiguration.() -> Unit> = listOf()
+}
+
+fun Project.awsProject(profile: String, configurationInit: AwsProjectConfiguration.() -> Unit) {
+    val config = AwsProjectConfiguration().apply {
+        configurationInit()
+    }
 
     tasks {
 
@@ -23,6 +32,31 @@ fun Project.awsProject(profile: String) {
                 if (res.exitValue != 0) {
                     val awsError = AwsError(errorOut.toString().trim())
                     onError(awsError)
+                }
+            }
+        }
+
+        config.downloadTasks.forEach { taskConfig ->
+            val taskConfiguration = S3DownloadTaskConfiguration().apply {
+                taskConfig()
+            }
+            tasks.register(taskConfiguration.taskName) {
+                group = AWS_GROUP
+                description = "Download s3://${taskConfiguration.bucket}/${taskConfiguration.key}"
+
+                outputs.files(taskConfiguration.targetFile)
+                outputs.upToDateWhen {
+                    taskConfiguration.targetFile?.exists() == true
+                }
+
+                doLast {
+                    downloadS3File(
+                        targetFile = requireNotNull(taskConfiguration.targetFile) { "Target file is required" },
+                        bucket = requireNotNull(taskConfiguration.bucket) { "Bucket is required" },
+                        key = requireNotNull(taskConfiguration.key) { "Key is required" },
+                        profile = profile,
+                        region = taskConfiguration.region
+                    )
                 }
             }
         }
