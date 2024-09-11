@@ -4,7 +4,7 @@
 
 ### Features
 
-- add `S3DownloadFile` task
+- add `downloadTasks` to `awsProject`
 
 ### Development
 
