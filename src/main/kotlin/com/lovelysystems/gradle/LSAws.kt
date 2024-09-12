@@ -3,6 +3,7 @@ package com.lovelysystems.gradle
 import com.lovelysystems.gradle.aws.S3DownloadTaskConfiguration
 import com.lovelysystems.gradle.aws.S3UploadDirectoryTaskConfiguration
 import com.lovelysystems.gradle.aws.downloadS3File
+import com.lovelysystems.gradle.aws.uploadS3Directory
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.invoke
