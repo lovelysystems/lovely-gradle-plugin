@@ -5,6 +5,7 @@
 ### Features
 
 - add `S3DownloadFile` task
+- added optional properties `regionOverride` and `profileOverride` to `S3UploadDirectory`  
 - deprecated properties `region` and `profile` on `S3UploadDirectory` task
 
 ### Development
