@@ -175,19 +175,31 @@ lovely {
 
 ### Task types
 
-- `S3UploadDirectory` - Uploads a directory to an S3 bucket, e.g.:
-    ```kotlin
-    val uploadMyContent by tasks.registering(UploadDirectoryToS3::class) {
-        profile = "<profile-name>"
-        bucket = "<bucket-name>"
-        sourceDirectory = File("build/content")
-        region = Region.EU_CENTRAL_1 // optional (defaults to Region.EU_CENTRAL_1)
-        prefix = "content/$version" // optional (defaults to "")
-        overwrite = true // optional (defaults to false)
-    }
-    ```
+- Upload directories to S3. Configure the plugin to create upload tasks.
+  ```kotlin
+  awsProject("<profile-name>") {
+      uploadTasks = listOf({
+          taskName = "uploadDirectory" //optional, defaults to "uploadDirectory"
+          bucket = "<bucket-name>"
+          prefix = "some-target-prefix"
+          sourceDirectory = File("/path/to/content")
+          region = "eu-central-1" // optional (defaults to "eu-central-1")
+          overwrite = true // optional (defaults to false)
+      })
+  }
   
-- Download Files from S3. Configure the plugin to create task. Downloads a single file. Only downloads the 
+  tasks.register("publishSomeContent") {
+    group = "Release"
+    description = "Publish some content to S3"
+    val execute = true
+    if (execute) dependsOn("uploadDirectory")
+    onlyIf {
+        execute
+    }
+  }
+  ```
+
+- Download Files from S3. Configure the plugin to create download tasks. Each task downloads a single file. Only downloads the 
   file if the targetFile doesn't exist. It should only be used to download files which aren't changing,
   e.g. downloading example data, as newer versions from S3 will not be downloaded if one already exists. Usage:
   ```kotlin

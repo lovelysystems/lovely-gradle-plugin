@@ -4,7 +4,8 @@
 
 ### Features
 
-- add `downloadTasks` to `awsProject`
+- add `downloadTasks` and `uploadTasks` to `awsProject`
+- Deprecated `S3UploadDirectory` task type
 
 ### Development
 
