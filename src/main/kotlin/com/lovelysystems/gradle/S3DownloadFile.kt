@@ -23,9 +23,6 @@ import kotlin.io.path.createFile
 abstract class S3DownloadFile : DefaultTask() {
 
     @get:Input
-    abstract val profile: Property<String>
-
-    @get:Input
     abstract val bucket: Property<String>
 
     @get:OutputFile
@@ -33,14 +30,9 @@ abstract class S3DownloadFile : DefaultTask() {
 
     @get:Input
     @get:Optional
-    abstract val region: Property<String>
-
-    @get:Input
-    @get:Optional
     abstract val key: Property<String>
 
     init {
-        region.convention(Region.EU_CENTRAL_1.toString())
         outputs.upToDateWhen {
             targetFile.get().exists()
         }
@@ -57,8 +49,8 @@ abstract class S3DownloadFile : DefaultTask() {
         }
 
         val s3Client = S3AsyncClient.builder()
-            .credentialsProvider(ProfileCredentialsProvider.create(profile.get()))
-            .region(Region.of(region.get()))
+            .credentialsProvider(ProfileCredentialsProvider.create(project.awsSettings.profile))
+            .region(Region.of(project.awsSettings.region))
             .build()
 
         HeadBucketRequest.builder().bucket(bucket.get()).build().let { req ->

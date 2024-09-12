@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutionException
 abstract class S3UploadDirectory : DefaultTask() {
 
     @get:Input
+    @Deprecated("This property has no effect, the profile configured in awsProject(<profile>, <region>) is used.")
     abstract val profile: Property<String>
 
     @get:Input
@@ -34,6 +35,7 @@ abstract class S3UploadDirectory : DefaultTask() {
 
     @get:Input
     @get:Optional
+    @Deprecated("This property has no effect, the region configured in awsProject(<profile>, <region>) is used.")
     abstract val region: Property<Region>
 
     @get:Input
@@ -45,7 +47,6 @@ abstract class S3UploadDirectory : DefaultTask() {
     abstract val overwrite: Property<Boolean>
 
     init {
-        region.convention(Region.EU_CENTRAL_1)
         prefix.convention("")
         overwrite.convention(false)
     }
@@ -57,8 +58,8 @@ abstract class S3UploadDirectory : DefaultTask() {
         }
 
         val s3Client = S3AsyncClient.builder()
-            .credentialsProvider(ProfileCredentialsProvider.create(profile.get()))
-            .region(region.get())
+            .credentialsProvider(ProfileCredentialsProvider.create(project.awsSettings.profile))
+            .region(Region.of(project.awsSettings.region))
             .build()
 
         HeadBucketRequest.builder().bucket(bucket.get()).build().let { req ->

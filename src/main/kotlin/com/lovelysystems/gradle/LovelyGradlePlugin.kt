@@ -11,6 +11,7 @@ import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.kotlin.dsl.registering
+import software.amazon.awssdk.regions.Region
 
 open class LovelyPluginExtension(private val project: Project) {
 
@@ -32,8 +33,8 @@ open class LovelyPluginExtension(private val project: Project) {
         project.dockerProject(repository, stages, platforms, buildPlatforms, dockerFiles)
     }
 
-    fun awsProject(profile: String) {
-        project.awsProject(profile)
+    fun awsProject(profile: String, region: String = Region.EU_CENTRAL_1.toString()) {
+        project.awsProject(profile, region)
     }
 
 }
