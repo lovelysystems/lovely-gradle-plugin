@@ -184,9 +184,8 @@ lovely {
         overwrite = true // optional (defaults to false)
     }
     ```
-- `S3DownloadFile` - Downloads a single file. Only downloads the file if the targetFile doesn't exist.
-  It should only be used to download files which aren't changing, e.g. downloading example data, as newer versions from 
-  S3 will not be downloaded if one already exists. Usage:
+- `S3DownloadFile` - Downloads a single file. It should only be used to download files which aren't 
+  changing, e.g. downloading example data, as newer versions from S3 will not be downloaded if one already exists. Usage:
   ```kotlin
   val downloadMyContent by tasks.registering(S3DownloadFile::class) {
     bucket = "<bucket-name>"
