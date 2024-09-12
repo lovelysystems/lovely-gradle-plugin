@@ -1,18 +1,21 @@
 package com.lovelysystems.gradle
 
 import com.lovelysystems.gradle.aws.S3DownloadTaskConfiguration
+import com.lovelysystems.gradle.aws.S3UploadDirectoryTaskConfiguration
 import com.lovelysystems.gradle.aws.downloadS3File
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.kotlin.dsl.registering
+import software.amazon.awssdk.regions.Region
 import java.io.ByteArrayOutputStream
 
 private const val AWS_GROUP = "aws"
 
 class AwsProjectConfiguration {
     var downloadTasks: List<S3DownloadTaskConfiguration.() -> Unit> = listOf()
+    var uploadTasks: List<S3UploadDirectoryTaskConfiguration.() -> Unit> = listOf()
 }
 
 fun Project.awsProject(profile: String, configurationInit: AwsProjectConfiguration.() -> Unit) {
@@ -36,30 +39,47 @@ fun Project.awsProject(profile: String, configurationInit: AwsProjectConfigurati
             }
         }
 
-        config.downloadTasks.forEach { taskConfig ->
-            val taskConfiguration = S3DownloadTaskConfiguration().apply {
-                taskConfig()
-            }
-            tasks.register(taskConfiguration.taskName) {
-                group = AWS_GROUP
-                description = "Download s3://${taskConfiguration.bucket}/${taskConfiguration.key}"
+        config.downloadTasks.map { configInit -> S3DownloadTaskConfiguration().apply(configInit) }
+            .forEach { taskConfiguration ->
+                tasks.register(taskConfiguration.taskName) {
+                    group = AWS_GROUP
+                    description = "Download s3://${taskConfiguration.bucket}/${taskConfiguration.key}"
 
-                outputs.files(taskConfiguration.targetFile)
-                outputs.upToDateWhen {
-                    taskConfiguration.targetFile?.exists() == true
-                }
+                    outputs.files(taskConfiguration.targetFile)
+                    outputs.upToDateWhen {
+                        taskConfiguration.targetFile?.exists() == true
+                    }
 
-                doLast {
-                    downloadS3File(
-                        targetFile = requireNotNull(taskConfiguration.targetFile) { "Target file is required" },
-                        bucket = requireNotNull(taskConfiguration.bucket) { "Bucket is required" },
-                        key = requireNotNull(taskConfiguration.key) { "Key is required" },
-                        profile = profile,
-                        region = taskConfiguration.region
-                    )
+                    doLast {
+                        downloadS3File(
+                            targetFile = requireNotNull(taskConfiguration.targetFile) { "Target file is required" },
+                            bucket = requireNotNull(taskConfiguration.bucket) { "Bucket is required" },
+                            key = requireNotNull(taskConfiguration.key) { "Key is required" },
+                            profile = profile,
+                            region = taskConfiguration.region
+                        )
+                    }
                 }
             }
-        }
+        config.uploadTasks.map { taskConfig -> S3UploadDirectoryTaskConfiguration().apply(taskConfig) }
+            .forEach { taskConfig ->
+                tasks.register(taskConfig.taskName) {
+                    group = AWS_GROUP
+                    description =
+                        "Upload directory ${taskConfig.sourceDirectory} to s3://${taskConfig.bucket}/${taskConfig.prefix}"
+
+                    doLast {
+                        uploadS3Directory(
+                            sourceDirectory = requireNotNull(taskConfig.sourceDirectory) { "Source directory is required" },
+                            profile = profile,
+                            region = Region.of(taskConfig.region),
+                            bucket = requireNotNull(taskConfig.bucket) { "Bucket is required" },
+                            prefix = taskConfig.prefix,
+                            overwrite = taskConfig.overwrite,
+                        )
+                    }
+                }
+            }
 
         /**
          * Task to get AWS SSO credentials for the configured [profile].
