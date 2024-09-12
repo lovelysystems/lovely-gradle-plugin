@@ -37,7 +37,7 @@ abstract class S3UploadDirectory : DefaultTask() {
     @get:Input
     @get:Optional
     @Deprecated("Use regionOverride instead")
-    abstract val region: Property<String?>
+    abstract val region: Property<Region?>
 
     @get:Input
     @get:Optional
@@ -67,7 +67,7 @@ abstract class S3UploadDirectory : DefaultTask() {
         }
 
         val profile = profileOverride.orNull ?: profile.orNull ?: project.awsSettings.profile
-        val region = regionOverride.orNull ?: region.orNull ?: project.awsSettings.region
+        val region = regionOverride.orNull ?: region.orNull?.toString() ?: project.awsSettings.region
 
         val s3Client = S3AsyncClient.builder()
             .credentialsProvider(ProfileCredentialsProvider.create(profile))
