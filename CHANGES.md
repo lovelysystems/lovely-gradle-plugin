@@ -5,6 +5,7 @@
 ### Features
 
 - add `S3DownloadFile` task
+- deprecated properties `region` and `profile` on `S3UploadDirectory` task
 
 ### Development
 
