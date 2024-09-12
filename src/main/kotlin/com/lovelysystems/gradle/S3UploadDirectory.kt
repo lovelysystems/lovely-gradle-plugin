@@ -24,10 +24,6 @@ import java.util.concurrent.ExecutionException
 abstract class S3UploadDirectory : DefaultTask() {
 
     @get:Input
-    @Deprecated("This property has no effect, the profile configured in awsProject(<profile>, <region>) is used.")
-    abstract val profile: Property<String>
-
-    @get:Input
     abstract val bucket: Property<String>
 
     @get:Input
@@ -35,8 +31,21 @@ abstract class S3UploadDirectory : DefaultTask() {
 
     @get:Input
     @get:Optional
-    @Deprecated("This property has no effect, the region configured in awsProject(<profile>, <region>) is used.")
-    abstract val region: Property<Region>
+    @Deprecated("Use profileOverride instead")
+    abstract val profile: Property<String?>
+
+    @get:Input
+    @get:Optional
+    @Deprecated("Use regionOverride instead")
+    abstract val region: Property<String?>
+
+    @get:Input
+    @get:Optional
+    abstract val profileOverride: Property<String?>
+
+    @get:Input
+    @get:Optional
+    abstract val regionOverride: Property<String?>
 
     @get:Input
     @get:Optional
@@ -57,9 +66,12 @@ abstract class S3UploadDirectory : DefaultTask() {
             throw RuntimeException("source ${sourceDirectory.get()} is not a directory")
         }
 
+        val profile = profileOverride.orNull ?: profile.orNull ?: project.awsSettings.profile
+        val region = regionOverride.orNull ?: region.orNull ?: project.awsSettings.region
+
         val s3Client = S3AsyncClient.builder()
-            .credentialsProvider(ProfileCredentialsProvider.create(project.awsSettings.profile))
-            .region(Region.of(project.awsSettings.region))
+            .credentialsProvider(ProfileCredentialsProvider.create(profile))
+            .region(Region.of(region))
             .build()
 
         HeadBucketRequest.builder().bucket(bucket.get()).build().let { req ->

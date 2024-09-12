@@ -19,6 +19,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.concurrent.ExecutionException
 import kotlin.io.path.createFile
+import kotlin.io.path.deleteIfExists
 
 abstract class S3DownloadFile : DefaultTask() {
 
@@ -27,6 +28,14 @@ abstract class S3DownloadFile : DefaultTask() {
 
     @get:OutputFile
     abstract val targetFile: Property<File>
+
+    @get:Input
+    @get:Optional
+    abstract val profileOverride: Property<String?>
+
+    @get:Input
+    @get:Optional
+    abstract val regionOverride: Property<String?>
 
     @get:Input
     @get:Optional
@@ -40,17 +49,12 @@ abstract class S3DownloadFile : DefaultTask() {
 
     @TaskAction
     fun download() {
-        if (targetFile.get().exists()) {
-            //even when adding a custom upToDateWhen the task might still be rerun when another upToDateWhen condition is false
-            // e.g. when an input changed. This task should however ONLY download from S3 when the target doesn't already exist.
-            // Because the other built-in upToDateWhen conditions cannot be ignored the implementation needs to abort if the target already exists
-            logger.info("Target file {} exists. Skipping download from S3.", targetFile.get())
-            return
-        }
+        val profile = profileOverride.orNull ?: project.awsSettings.profile
+        val region = regionOverride.orNull ?: project.awsSettings.region
 
         val s3Client = S3AsyncClient.builder()
-            .credentialsProvider(ProfileCredentialsProvider.create(project.awsSettings.profile))
-            .region(Region.of(project.awsSettings.region))
+            .credentialsProvider(ProfileCredentialsProvider.create(profile))
+            .region(Region.of(region))
             .build()
 
         HeadBucketRequest.builder().bucket(bucket.get()).build().let { req ->
@@ -83,6 +87,9 @@ abstract class S3DownloadFile : DefaultTask() {
             val obj = listResponse.contents().first()
             val destination = Paths.get(targetFile.get().absolutePath)
             Files.createDirectories(destination.parent)
+            //the target file can exists when the task is not up to date because e.g. a input (other than targetFile) changed.
+            //So it is deleted as otherwise the download fails
+            destination.deleteIfExists()
             destination.createFile()
 
             val downloadFile = transferManager.downloadFile(DownloadFileRequest.builder()
