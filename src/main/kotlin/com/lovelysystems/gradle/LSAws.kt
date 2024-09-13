@@ -1,15 +1,14 @@
 package com.lovelysystems.gradle
 
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.getValue
-import org.gradle.kotlin.dsl.invoke
-import org.gradle.kotlin.dsl.provideDelegate
-import org.gradle.kotlin.dsl.registering
+import org.gradle.kotlin.dsl.*
 import java.io.ByteArrayOutputStream
 
 private const val AWS_GROUP = "aws"
 
-fun Project.awsProject(profile: String) {
+fun Project.awsProject(profile: String, region: String) {
+
+    project.extensions.create<AwsSettings>("aws", profile, region)
 
     tasks {
 
@@ -63,3 +62,7 @@ fun Project.awsProject(profile: String) {
 private class AwsError(val msg: String) {
     val profileNotFoundError by lazy { msg.matches(Regex("The config profile \\(.+\\) could not be found")) }
 }
+
+open class AwsSettings(val profile: String, val region: String)
+
+val Project.awsSettings: AwsSettings get() = extensions["aws"] as AwsSettings

@@ -1,5 +1,17 @@
 # Changes for Lovely Gradle Plugin
 
+## Unreleased
+
+### Features
+
+- add `S3DownloadFile` task
+- added optional properties `regionOverride` and `profileOverride` to `S3UploadDirectory`  
+- deprecated properties `region` and `profile` on `S3UploadDirectory` task
+
+### Development
+
+- Upgrade examples project to gradle 8.8
+
 ## 2024-08-22 / 1.14.2
 
 ### Fix

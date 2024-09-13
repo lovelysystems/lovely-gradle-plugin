@@ -164,7 +164,7 @@ To enable the plugin add the following to your `build.gradle.kts` file:
 
 ```kotlin
 lovely {
-  awsProject("<my-profile>")
+  awsProject("<my-profile>", "<region (defaults to eu-central-1)>")
 }
 ```
 
@@ -178,14 +178,21 @@ lovely {
 - `S3UploadDirectory` - Uploads a directory to an S3 bucket, e.g.:
     ```kotlin
     val uploadMyContent by tasks.registering(UploadDirectoryToS3::class) {
-        profile = "<profile-name>"
         bucket = "<bucket-name>"
         sourceDirectory = File("build/content")
-        region = Region.EU_CENTRAL_1 // optional (defaults to Region.EU_CENTRAL_1)
         prefix = "content/$version" // optional (defaults to "")
-        owerwrite = true // optional (defaults to false)
+        overwrite = true // optional (defaults to false)
     }
     ```
+- `S3DownloadFile` - Downloads a single file. It should only be used to download files which aren't 
+  changing, e.g. downloading example data, as newer versions from S3 will not be downloaded if one already exists. Usage:
+  ```kotlin
+  val downloadMyContent by tasks.registering(S3DownloadFile::class) {
+    bucket = "<bucket-name>"
+    key = "samples.zip"
+    targetFile = File("samples/content.zip")
+  }
+  ```
 
 ## License
 
