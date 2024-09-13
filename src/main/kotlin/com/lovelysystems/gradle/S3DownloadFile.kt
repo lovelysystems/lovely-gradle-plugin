@@ -12,6 +12,7 @@ import software.amazon.awssdk.services.s3.S3AsyncClient
 import software.amazon.awssdk.services.s3.model.HeadBucketRequest
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException
 import software.amazon.awssdk.transfer.s3.S3TransferManager
 import software.amazon.awssdk.transfer.s3.model.DownloadFileRequest
 import java.io.File
@@ -57,34 +58,7 @@ abstract class S3DownloadFile : DefaultTask() {
             .region(Region.of(region))
             .build()
 
-        HeadBucketRequest.builder().bucket(bucket.get()).build().let { req ->
-            try {
-                s3Client.headBucket(req).get()
-            } catch (e: ExecutionException) {
-                when (e.cause) {
-                    is NoSuchBucketException -> throw RuntimeException("Bucket ${bucket.get()} does not exist")
-                    else -> throw e
-                }
-            }
-        }
-
-        val listResponse = ListObjectsV2Request.builder().bucket(bucket.get()).prefix(key.get()).build()
-            .let { req -> s3Client.listObjectsV2(req).get() }
-
-        if (!listResponse.hasContents()) {
-            throw RuntimeException("No object ${bucket.get()}/${key.get()} found")
-        }
-
-        if (listResponse.keyCount() > 1) {
-            throw RuntimeException(
-                "More than one object matching ${bucket.get()}/${key.get()} found. Found ${
-                    listResponse.contents().map { it.key() }
-                }"
-            )
-        }
-
         S3TransferManager.builder().s3Client(s3Client).build().use { transferManager ->
-            val obj = listResponse.contents().first()
             val destination = Paths.get(targetFile.get().absolutePath)
             Files.createDirectories(destination.parent)
             //the target file can exists when the task is not up to date because e.g. a input (other than targetFile) changed.
@@ -93,11 +67,19 @@ abstract class S3DownloadFile : DefaultTask() {
             destination.createFile()
 
             val downloadFile = transferManager.downloadFile(DownloadFileRequest.builder()
-                .getObjectRequest { builder -> builder.bucket(bucket.get()).key(obj.key()) }
+                .getObjectRequest { builder -> builder.bucket(bucket.get()).key(key.get()) }
                 .destination(destination)
                 .build()
             )
-            downloadFile.completionFuture().join()
+            try {
+                downloadFile.completionFuture().join()
+            } catch (e: Exception) {
+                when (e.cause) {
+                    is NoSuchBucketException -> throw RuntimeException("Bucket $bucket does not exist")
+                    is NoSuchKeyException -> throw RuntimeException("No object $bucket/$key Found")
+                    else -> throw e
+                }
+            }
         }
     }
 }
