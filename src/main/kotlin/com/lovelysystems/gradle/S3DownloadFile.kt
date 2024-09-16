@@ -6,11 +6,11 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProviderChain
+import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3AsyncClient
-import software.amazon.awssdk.services.s3.model.HeadBucketRequest
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Request
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException
 import software.amazon.awssdk.transfer.s3.S3TransferManager
@@ -18,7 +18,6 @@ import software.amazon.awssdk.transfer.s3.model.DownloadFileRequest
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.concurrent.ExecutionException
 import kotlin.io.path.createFile
 import kotlin.io.path.deleteIfExists
 
@@ -54,7 +53,12 @@ abstract class S3DownloadFile : DefaultTask() {
         val region = regionOverride.orNull ?: project.awsSettings.region
 
         val s3Client = S3AsyncClient.builder()
-            .credentialsProvider(ProfileCredentialsProvider.create(profile))
+            .credentialsProvider(
+                AwsCredentialsProviderChain.of(
+                    EnvironmentVariableCredentialsProvider.create(),
+                    ProfileCredentialsProvider.create(profile),
+                )
+            )
             .region(Region.of(region))
             .build()
 
