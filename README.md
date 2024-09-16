@@ -164,9 +164,13 @@ To enable the plugin add the following to your `build.gradle.kts` file:
 
 ```kotlin
 lovely {
-  awsProject("<my-profile>", "<region (defaults to eu-central-1)>")
+  awsProject("<my-profile (defaults to 'default')>", "<region (defaults to eu-central-1)>")
 }
 ```
+
+The tasks also support loading credentials from the environment variables: 
+`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_SESSION_TOKEN`.
+When credentials can be loaded from these then the profile and the sso session is ignored.
 
 ### Tasks
 
