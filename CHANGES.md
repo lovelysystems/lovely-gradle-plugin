@@ -1,5 +1,11 @@
 # Changes for Lovely Gradle Plugin
 
+## Unreleased
+
+### Fix
+
+- to be able to use downloadFile in ci, also get aws credentials from environment
+
 ## 2024-09-13 / 1.15.0
 
 ### Features
