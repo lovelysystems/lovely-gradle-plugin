@@ -33,7 +33,7 @@ open class LovelyPluginExtension(private val project: Project) {
         project.dockerProject(repository, stages, platforms, buildPlatforms, dockerFiles)
     }
 
-    fun awsProject(profile: String, region: String = Region.EU_CENTRAL_1.toString()) {
+    fun awsProject(profile: String = "default", region: String = Region.EU_CENTRAL_1.toString()) {
         project.awsProject(profile, region)
     }
 
