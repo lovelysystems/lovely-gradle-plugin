@@ -5,6 +5,8 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProviderChain
+import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider
 import software.amazon.awssdk.core.internal.util.Mimetype
 import software.amazon.awssdk.regions.Region
@@ -70,7 +72,12 @@ abstract class S3UploadDirectory : DefaultTask() {
         val region = regionOverride.orNull ?: region.orNull?.toString() ?: project.awsSettings.region
 
         val s3Client = S3AsyncClient.builder()
-            .credentialsProvider(ProfileCredentialsProvider.create(profile))
+            .credentialsProvider(
+                AwsCredentialsProviderChain.of(
+                    EnvironmentVariableCredentialsProvider.create(),
+                    ProfileCredentialsProvider.create(profile),
+                )
+            )
             .region(Region.of(region))
             .build()
 
