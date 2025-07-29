@@ -1,5 +1,21 @@
 # Changes for Lovely Gradle Plugin
 
+## unreleased
+
+### Fix
+
+- PYTHON
+  - do not annotate pip-compile outputs to prevent diffs
+  - upgrade pip-tools to 7.4.1
+
+### Breaking
+
+-  generqated python requirement files change after update
+
+## Develop
+
+- upgrade gradle to 8.14.3
+
 ## 2024-09-16 / 1.15.1
 
 ### Fix

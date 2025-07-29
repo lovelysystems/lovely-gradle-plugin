@@ -49,7 +49,7 @@ open class VenvTask : DefaultTask() {
                 project.pythonSettings.pip, "install", "--upgrade",
                 "pip",
                 "setuptools",
-                "pip-tools==7.1.0"
+                "pip-tools==7.4.1"
             )
         }
     }
@@ -83,7 +83,9 @@ open class DevTask : DefaultTask() {
                 commandLine(
                     project.pythonSettings.pipCompile,
                     reqInFile.toRelativeString(project.projectDir),
-                    "--output-file", project.pythonSettings.reqFile.toRelativeString(project.projectDir)
+                    "--no-annotate",
+                    "--output-file",
+                    project.pythonSettings.reqFile.toRelativeString(project.projectDir)
                 )
             }
 
@@ -94,7 +96,9 @@ open class DevTask : DefaultTask() {
                 commandLine(
                     project.pythonSettings.pipCompile,
                     project.pythonSettings.devReqInFile.toRelativeString(project.projectDir),
-                    "--output-file", project.pythonSettings.devReqFile.toRelativeString(project.projectDir)
+                    "--no-annotate",
+                    "--output-file",
+                    project.pythonSettings.devReqFile.toRelativeString(project.projectDir)
                 )
             }
         }
