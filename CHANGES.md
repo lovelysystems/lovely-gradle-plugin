@@ -1,6 +1,6 @@
 # Changes for Lovely Gradle Plugin
 
-## unreleased
+## 2025-07-29 / 1.16.0
 
 ### Fix
 
