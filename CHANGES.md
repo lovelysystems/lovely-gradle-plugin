@@ -1,5 +1,12 @@
 # Changes for Lovely Gradle Plugin
 
+## Unreleased
+
+### Feature
+
+- upgrade pip-tools to 7.5.3
+- pin setuptools < 81
+
 ## 2025-07-29 / 1.16.0
 
 ### Fix
