@@ -1,5 +1,10 @@
 # Changes for Lovely Gradle Plugin
 
+## Develop
+
+- upgrade pip-tools to 7.5.3
+- pin setuptools < 81
+
 ## 2025-07-29 / 1.16.0
 
 ### Fix
@@ -15,8 +20,6 @@
 ## Develop
 
 - upgrade gradle to 8.14.3
-- upgrade pip-tools to 7.5.3 (fixes compatibility with pip >= 24.1)
-- pin setuptools < 81 (setuptools 81 removed pkg_resources)
 
 ## 2024-09-16 / 1.15.1
 
