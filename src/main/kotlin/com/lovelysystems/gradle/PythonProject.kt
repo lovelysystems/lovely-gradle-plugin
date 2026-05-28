@@ -48,7 +48,8 @@ open class VenvTask : DefaultTask() {
             commandLine(
                 project.pythonSettings.pip, "install", "--upgrade",
                 "pip",
-                "setuptools",
+                // setuptools 81 removed pkg_resources, still needed by gunicorn, sphinx, etc.
+                "setuptools<81",
                 "pip-tools==7.5.3"
             )
         }
