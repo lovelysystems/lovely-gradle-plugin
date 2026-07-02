@@ -18,6 +18,13 @@ jobs:
       - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: "21" }
       - uses: gradle/actions/setup-gradle@v4
+      # LSGitTest creates repos and commits/tags — needs a git identity and the
+      # master default branch (the self-hosted runner had these; GH-hosted doesn't).
+      - name: Configure git
+        run: |
+          git config --global user.email "ci@lovelysystems.com"
+          git config --global user.name "CI"
+          git config --global init.defaultBranch master
       - name: Docker Hub login (optional)
         env: { DOCKERHUB_LOGIN: "${{ secrets.DOCKERHUB_LOGIN }}", DOCKERHUB_PASSWORD: "${{ secrets.DOCKERHUB_PASSWORD }}" }
         run: if [ -n "$DOCKERHUB_LOGIN" ]; then echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_LOGIN" --password-stdin; else echo anon; fi
