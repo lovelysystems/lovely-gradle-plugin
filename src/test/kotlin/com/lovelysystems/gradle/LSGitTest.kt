@@ -15,6 +15,7 @@ class LSGitTest {
 
         val g = LSGit(tmp.root)
         g.gitCmd("init")
+        g.configureTestIdentity()
 
         g.describe() shouldBeEqualTo "unversioned"
 
@@ -39,10 +40,12 @@ class LSGitTest {
 
         val upstream = LSGit(upstreamPath)
         upstream.gitCmd("init")
+        upstream.configureTestIdentity()
         upstream.createVersionedFile("a.txt", tag = "0.0.1")
 
         val downstream = LSGit(downstreamPath)
         downstream.gitCmd("clone", "${upstreamPath.absolutePath}/.git", "./")
+        downstream.configureTestIdentity()
 
         downstream.createVersionedFile("b.txt", tag = "0.0.2")
 
@@ -180,6 +183,7 @@ class LSGitTest {
     fun testLatestLocalGitTagPatchOfVersion() {
         val g = LSGit(tmp.root)
         g.gitCmd("init", "--initial-branch=main")
+        g.configureTestIdentity()
         g.latestLocalGitTagPatchOfVersion() shouldBe null
         tmp.root.resolve("some.txt").writeText("content")
         g.gitCmd("add", ".")
