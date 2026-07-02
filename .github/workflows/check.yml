@@ -8,7 +8,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   check:
-    runs-on: [self-hosted, op-ci-runners]
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
       TZ: Europe/Zurich
