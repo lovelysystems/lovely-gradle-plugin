@@ -1,0 +1,25 @@
+name: Check
+on:
+  push: { branches: [ master ] }
+  pull_request: { branches: [ master ] }
+permissions: { contents: read, packages: read }
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: [self-hosted, op-ci-runners]
+    timeout-minutes: 60
+    env:
+      TZ: Europe/Zurich
+      TESTCONTAINERS_RYUK_DISABLED: "true"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with: { distribution: temurin, java-version: "21" }
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Docker Hub login (optional)
+        env: { DOCKERHUB_LOGIN: "${{ secrets.DOCKERHUB_LOGIN }}", DOCKERHUB_PASSWORD: "${{ secrets.DOCKERHUB_PASSWORD }}" }
+        run: if [ -n "$DOCKERHUB_LOGIN" ]; then echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_LOGIN" --password-stdin; else echo anon; fi
+      - name: Test
+        run: ./gradlew test --console=plain
