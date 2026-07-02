@@ -1,5 +1,11 @@
 # Changes for Lovely Gradle Plugin
 
+## Unreleased
+
+### Development
+
+- Migrate CI from CircleCI to GitHub Actions on the self-hosted op-ci-runners.
+
 ## 2026-04-28 / 1.17.0
 
 ### Feature
